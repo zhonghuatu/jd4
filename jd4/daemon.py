@@ -135,7 +135,7 @@ class JudgeHandler:
                  time_ms=total_time_usage_ns // 1000000,
                  memory_kb=total_memory_usage_bytes // 1024)
                  
-    async def judge_remote(self, cases_file, package):
+    async def judge_remote(self):
         loop = get_event_loop()
         self.next(status=STATUS_JUDGING, progress=0)
         #cases = list(read_cases(cases_file))
