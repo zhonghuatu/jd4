@@ -82,8 +82,8 @@ class JudgeHandler:
         logger.info('Submission Remote: %s, %s, %s ( %s, %s )', self.domain_id, self.pid, self.rid,self.remote['orig_oj'],self.remote['orig_id'])
         #cases_file_task = loop.create_task(cache_open(self.session, self.domain_id, self.pid))
         #package = await self.build()
-        with await cases_file_task as cases_file:
-            await self.judge_remote()
+        #with await cases_file_task as cases_file:
+        await self.judge_remote()
 
     async def do_pretest(self):
         loop = get_event_loop()
