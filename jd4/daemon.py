@@ -45,10 +45,10 @@ class JudgeHandler:
         self.remote = self.request.pop('remote')
         try:
             if self.type == 0:
-				if self.remote==False:
-					await self.do_submission()
-				else:
-					await self.do_submission_remote()
+                if self.remote==False:
+                    await self.do_submission()
+                else:
+                    await self.do_submission_remote()
             elif self.type == 1:
                 await self.do_pretest()
             else:
@@ -134,8 +134,8 @@ class JudgeHandler:
                  score=total_score,
                  time_ms=total_time_usage_ns // 1000000,
                  memory_kb=total_memory_usage_bytes // 1024)
-				 
-	async def judge(self, cases_file, package):
+                 
+    async def judge(self, cases_file, package):
         loop = get_event_loop()
         self.next(status=STATUS_JUDGING, progress=0)
         #cases = list(read_cases(cases_file))
@@ -167,7 +167,7 @@ class JudgeHandler:
                  score=total_score,
                  time_ms=total_time_usage_ns // 1000000,
                  memory_kb=total_memory_usage_bytes // 1024,
-				 judge_text="Test")
+                 judge_text="Test")
 
     def next(self, **kwargs):
         self.ws.send_json({'key': 'next', 'tag': self.tag, **kwargs})
