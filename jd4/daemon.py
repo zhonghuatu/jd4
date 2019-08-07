@@ -24,7 +24,7 @@ class JudgeHandler:
         self.session = session
         self.request = request
         self.ws = ws
-		self.ybt = (config['YBT_uname'],config['YBT_pwd'])
+        self.ybt = (config['YBT_uname'],config['YBT_pwd'])
 
     async def handle(self):
         event = self.request.pop('event', None)
@@ -141,18 +141,18 @@ class JudgeHandler:
     async def judge_remote(self):
         loop = get_event_loop()
         self.next(status=STATUS_COMPILING, progress=0)
-		if(self.remote['orig_oj']=="YBT"):
-			logger.info('Choose %s Crawer To Remote: %s, %s, %s', self.remote['orig_oj'], self.domain_id, self.pid, self.rid)
-			if self.ybt.CheckSession()==False:
-				logger.info('%s Crawer Is Logining', self.remote['orig_oj'])
-				self.ybt.Login()
-			recode_id = self.ybt.Submit(self.remote['orig_id'],self.code,self.lang)
-			if recode_id == '-1':
-				raise Exception('Submit Too Much Time')
-			elif recode_id == '-2':
-				raise Exception('Something Unexpected Happen')
-			else:
-				self.ybt.Monitor(recode_id,self.next,self.end)
+        if(self.remote['orig_oj']=="YBT"):
+            logger.info('Choose %s Crawer To Remote: %s, %s, %s', self.remote['orig_oj'], self.domain_id, self.pid, self.rid)
+            if self.ybt.CheckSession()==False:
+                logger.info('%s Crawer Is Logining', self.remote['orig_oj'])
+                self.ybt.Login()
+            recode_id = self.ybt.Submit(self.remote['orig_id'],self.code,self.lang)
+            if recode_id == '-1':
+                raise Exception('Submit Too Much Time')
+            elif recode_id == '-2':
+                raise Exception('Something Unexpected Happen')
+            else:
+                self.ybt.Monitor(recode_id,self.next,self.end)
 
     def next(self, **kwargs):
         self.ws.send_json({'key': 'next', 'tag': self.tag, **kwargs})
@@ -181,7 +181,7 @@ async def do_noop(session):
 
 async def daemon():
     try_init_cgroup()
-	
+    
     async with VJ4Session(config['server_url']) as session:
         while True:
             try:
