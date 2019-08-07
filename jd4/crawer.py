@@ -127,8 +127,8 @@ class YBTJudge:
 			return
 		staText[4] = staText[4].split("|")
 		staText[5] = staText[5].split(",")
-        total_time_usage_ms = 0
-        total_memory_usage_kb = 0
+		total_time_usage_ms = 0
+		total_memory_usage_kb = 0
 		if staText[4][0]=="Accept":
 			total_score = 100
 			total_status = STATUS_ACCEPTED
