@@ -14,7 +14,6 @@ from jd4.status import STATUS_ACCEPTED, STATUS_COMPILE_ERROR, \
 from jd4.crawer import *
 
 RETRY_DELAY_SEC = 30
-ybt = None
 
 class CompileError(Exception):
     pass
@@ -24,7 +23,7 @@ class JudgeHandler:
         self.session = session
         self.request = request
         self.ws = ws
-        self.ybt = (config['YBT_uname'],config['YBT_pwd'])
+        self.ybt = YBTJudge(config['YBT_uname'],config['YBT_pwd'])
 
     async def handle(self):
         event = self.request.pop('event', None)
@@ -86,7 +85,7 @@ class JudgeHandler:
         #cases_file_task = loop.create_task(cache_open(self.session, self.domain_id, self.pid))
         #package = await self.build()
         #with await cases_file_task as cases_file:
-        await self.judge_remote(self.remote)
+        await self.judge_remote()
 
     async def do_pretest(self):
         loop = get_event_loop()

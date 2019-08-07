@@ -48,7 +48,7 @@ class YBTJudge:
 		"OLE":"输出超限",
 		"RE":"运行错误",
 		"TLE":"时间超限",
-		"MLE":"空间超限"
+		"MLE":"空间超限",
 		"CE":"编译错误",
 		"RF":"权限错误",
 	}
@@ -85,7 +85,7 @@ class YBTJudge:
 		data = {
 			"user_id" : self.username,
 			"problem_id" : pid,
-			"language" : SLanguage[lang],
+			"language" : self.SLanguage[lang],
 			"source" : code,
 			"submit" : "提交"
 		}
@@ -127,6 +127,8 @@ class YBTJudge:
 			return
 		staText[4] = staText[4].split("|")
 		staText[5] = staText[5].split(",")
+        total_time_usage_ms = 0
+        total_memory_usage_kb = 0
 		if staText[4][0]=="Accept":
 			total_score = 100
 			total_status = STATUS_ACCEPTED
@@ -145,7 +147,7 @@ class YBTJudge:
 			total_time_usage_ms += int(staText[5][i][1][0])
 			next(status=STATUS_JUDGING,
                       case={
-					        'status': self.SResult[staText[5][i][0]]},
+					        'status': self.SResult[staText[5][i][0]],
                             'score': score,
                             'time_ms': int(staText[5][i][1][1]),
                             'memory_kb': int(staText[5][i][1][0]),
