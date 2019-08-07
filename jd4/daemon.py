@@ -11,8 +11,10 @@ from jd4.config import config, save_config
 from jd4.log import logger
 from jd4.status import STATUS_ACCEPTED, STATUS_COMPILE_ERROR, \
     STATUS_SYSTEM_ERROR, STATUS_JUDGING, STATUS_COMPILING
+from jd4.crawer import *
 
 RETRY_DELAY_SEC = 30
+ybt = None
 
 class CompileError(Exception):
     pass
@@ -22,6 +24,7 @@ class JudgeHandler:
         self.session = session
         self.request = request
         self.ws = ws
+		self.ybt = (config['YBT_uname'],config['YBT_pwd'])
 
     async def handle(self):
         event = self.request.pop('event', None)
@@ -83,7 +86,7 @@ class JudgeHandler:
         #cases_file_task = loop.create_task(cache_open(self.session, self.domain_id, self.pid))
         #package = await self.build()
         #with await cases_file_task as cases_file:
-        await self.judge_remote()
+        await self.judge_remote(self.remote)
 
     async def do_pretest(self):
         loop = get_event_loop()
@@ -137,37 +140,19 @@ class JudgeHandler:
                  
     async def judge_remote(self):
         loop = get_event_loop()
-        self.next(status=STATUS_JUDGING, progress=0)
-        #cases = list(read_cases(cases_file))
-        total_status = STATUS_ACCEPTED
-        total_score = 100
-        total_time_usage_ns = 0
-        total_memory_usage_bytes = 0
-        '''judge_tasks = list()
-        for case in cases:
-            judge_tasks.append(loop.create_task(case.judge(package)))
-        for index, judge_task in enumerate(judge_tasks):
-            status, score, time_usage_ns, memory_usage_bytes, stderr = await shield(judge_task)
-            if self.type == 1:
-                judge_text = stderr.decode(encoding='utf-8', errors='replace')
-            else:
-                judge_text = ''
-            self.next(status=STATUS_JUDGING,
-                      case={'status': status,
-                            'score': score,
-                            'time_ms': time_usage_ns // 1000000,
-                            'memory_kb': memory_usage_bytes // 1024,
-                            'judge_text': judge_text},
-                      progress=(index + 1) * 100 // len(cases))
-            total_status = max(total_status, status)
-            total_score += score
-            total_time_usage_ns += time_usage_ns
-            total_memory_usage_bytes = max(total_memory_usage_bytes, memory_usage_bytes)'''
-        self.end(status=total_status,
-                 score=total_score,
-                 time_ms=total_time_usage_ns // 1000000,
-                 memory_kb=total_memory_usage_bytes // 1024,
-                 judge_text="Test")
+        self.next(status=STATUS_COMPILING, progress=0)
+		if(self.remote['orig_oj']=="YBT"):
+			logger.info('Choose %s Crawer To Remote: %s, %s, %s', self.remote['orig_oj'], self.domain_id, self.pid, self.rid)
+			if self.ybt.CheckSession()==False:
+				logger.info('%s Crawer Is Logining', self.remote['orig_oj'])
+				self.ybt.Login()
+			recode_id = self.ybt.Submit(self.remote['orig_id'],self.code,self.lang)
+			if recode_id == '-1':
+				raise Exception('Submit Too Much Time')
+			elif recode_id == '-2':
+				raise Exception('Something Unexpected Happen')
+			else:
+				self.ybt.Monitor(recode_id,self.next,self.end)
 
     def next(self, **kwargs):
         self.ws.send_json({'key': 'next', 'tag': self.tag, **kwargs})
@@ -196,7 +181,7 @@ async def do_noop(session):
 
 async def daemon():
     try_init_cgroup()
-
+	
     async with VJ4Session(config['server_url']) as session:
         while True:
             try:
