@@ -123,8 +123,7 @@ class YBTJudge:
 			end(status=STATUS_COMPILE_ERROR,
                  score=0,
                  time_ms=0,
-                 memory_kb=0,
-				 judge_text="Tips:You can visit http://ybt.ssoier.cn:8088/statusx.php?runidx="+rid+" and http://ybt.ssoier.cn:8088/show_ce_info.php?runid="+rid+" for more details.")
+                 memory_kb=0)
 			return
 		staText[4] = staText[4].split("|")
 		staText[5] = staText[5].split(",")
@@ -157,8 +156,7 @@ class YBTJudge:
 		end(status=total_status,
                  score=total_score,
                  time_ms=total_time_usage_ms,
-                 memory_kb=total_memory_usage_kb,
-				 judge_text="Tips:You can visit http://ybt.ssoier.cn:8088/statusx.php?runidx="+rid+" for more details.")
+                 memory_kb=total_memory_usage_kb)
 			
 '''
 ybt = YBTJudge('BackMountOJ','houshan123')

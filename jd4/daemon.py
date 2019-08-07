@@ -154,6 +154,8 @@ class JudgeHandler:
                 raise Exception('Something Unexpected Happen')
             else:
                 self.ybt.Monitor(recode_id,self.next,self.end)
+		else:
+			raise Exception('Do Not Support % judge',self.remote['orig_oj'])
 
     def next(self, **kwargs):
         self.ws.send_json({'key': 'next', 'tag': self.tag, **kwargs})
