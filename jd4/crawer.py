@@ -136,11 +136,11 @@ class YBTJudge:
 			total_score = int(staText[4][1])
 			total_status = STATUS_WRONG_ANSWER
 		for i in range(0,len(staText[5])):
+			if staText[5][i]=="": continue
 			if staText[5][i][0]=="AC":
 				score = total_score//(len(staText[5])-1)
 			else:
 				score = 0
-			if staText[5][i]=="": continue
 			staText[5][i] = staText[5][i].split("|")
 			staText[5][i][1] = staText[5][i][1].split("_")
 			total_memory_usage_kb += int(staText[5][i][1][0])
