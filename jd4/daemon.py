@@ -146,7 +146,7 @@ class JudgeHandler:
             while self.ybt.CheckSession()==False:
                 logger.info('%s Crawer Is Logining', self.remote['orig_oj'])
                 self.ybt.Login()
-				time.sleep(1)
+                time.sleep(1)
             recode_id = self.ybt.Submit(self.remote['orig_id'],self.code,self.lang)
             if recode_id == '-1':
                 raise Exception('Submit Too Much Time')
