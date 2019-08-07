@@ -1,6 +1,7 @@
 from aiohttp import ClientError
 from asyncio import gather, get_event_loop, sleep, shield, wait, FIRST_COMPLETED
 from io import BytesIO
+import time
 
 from jd4.api import VJ4Session
 from jd4.case import read_cases
@@ -142,9 +143,10 @@ class JudgeHandler:
         self.next(status=STATUS_COMPILING, progress=0)
         if(self.remote['orig_oj']=="YBT"):
             logger.info('Choose %s Crawer To Remote: %s, %s, %s', self.remote['orig_oj'], self.domain_id, self.pid, self.rid)
-            if self.ybt.CheckSession()==False:
+            while self.ybt.CheckSession()==False:
                 logger.info('%s Crawer Is Logining', self.remote['orig_oj'])
                 self.ybt.Login()
+				time.sleep(1)
             recode_id = self.ybt.Submit(self.remote['orig_id'],self.code,self.lang)
             if recode_id == '-1':
                 raise Exception('Submit Too Much Time')

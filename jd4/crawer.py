@@ -115,15 +115,16 @@ class YBTJudge:
 			res.encoding = 'utf-8'
 			staText = res.text.split(":")
 		if staText[4] == "Compile Error":
-			url = "http://ybt.ssoier.cn:8088//show_ce_info.php?runid="+rid
+			url = "http://ybt.ssoier.cn:8088/show_ce_info.php?runid="+rid
 			res = self.session.get(url,headers=HEADERS)
 			res.encoding = 'utf-8'
 			soup = str(BeautifulSoup(res.text,"lxml").find("td",attrs={"class":"ceinfo"})).replace('<td class="ceinfo">','').replace('</td>','').replace('\n','').replace('<br/>','\n').replace('\n\n','\n')
-			next(compiler_text=message)
+			next(compiler_text=soup)
 			end(status=STATUS_COMPILE_ERROR,
                  score=0,
                  time_ms=0,
-                 memory_kb=0)
+                 memory_kb=0,
+				 judge_text="Tips:You can visit http://ybt.ssoier.cn:8088/statusx.php?runidx="+rid+" and http://ybt.ssoier.cn:8088/show_ce_info.php?runid="+rid+" for more details.")
 			return
 		staText[4] = staText[4].split("|")
 		staText[5] = staText[5].split(",")
@@ -156,7 +157,8 @@ class YBTJudge:
 		end(status=total_status,
                  score=total_score,
                  time_ms=total_time_usage_ms,
-                 memory_kb=total_memory_usage_kb)
+                 memory_kb=total_memory_usage_kb,
+				 judge_text="Tips:You can visit http://ybt.ssoier.cn:8088/statusx.php?runidx="+rid+" for more details.")
 			
 '''
 ybt = YBTJudge('BackMountOJ','houshan123')
