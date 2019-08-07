@@ -129,7 +129,7 @@ class YBTJudge:
 		staText[5] = staText[5].split(",")
 		total_time_usage_ms = 0
 		total_memory_usage_kb = 0
-		if staText[4][0]=="Accept":
+		if staText[4][0]=="Accepted":
 			total_score = 100
 			total_status = STATUS_ACCEPTED
 		else:
