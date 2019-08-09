@@ -105,8 +105,8 @@ class YBTJudge:
 		res = self.session.get(url,headers=HEADERS)
 		res.encoding = 'utf-8'
 		staText = res.text.split(":")
-		while staText[4].string == "Waiting" or staText[4].string == "Judging":
-			if staText[4].string == "Waiting":
+		while staText[4] == "Waiting" or staText[4] == "Judging":
+			if staText[4] == "Waiting":
 				next(status=STATUS_COMPILING, progress=0)
 			else:
 				next(status=STATUS_JUDGING, progress=0)
@@ -114,7 +114,7 @@ class YBTJudge:
 			res = self.session.get(url,headers=HEADERS)
 			res.encoding = 'utf-8'
 			staText = res.text.split(":")
-		if staText[4].string == "Compile Error":
+		if staText[4] == "Compile Error":
 			url = "http://ybt.ssoier.cn:8088/show_ce_info.php?runid="+rid
 			res = self.session.get(url,headers=HEADERS)
 			res.encoding = 'utf-8'
@@ -125,15 +125,15 @@ class YBTJudge:
 				 time_ms=0,
 				 memory_kb=0)
 			return
-		staText[4].string = staText[4].string.split("|")
+		staText[4] = staText[4].split("|")
 		staText[5] = staText[5].split(",")
 		total_time_usage_ms = 0
 		total_memory_usage_kb = 0
-		if staText[4].string[0]=="Accepted":
+		if staText[4][0]=="Accepted":
 			total_score = 100
 			total_status = STATUS_ACCEPTED
 		else:
-			total_score = int(staText[4].string[1])
+			total_score = int(staText[4][1])
 			total_status = STATUS_WRONG_ANSWER
 		for i in range(0,len(staText[5])):
 			if staText[5][i]=="": continue
