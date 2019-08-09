@@ -25,6 +25,7 @@ class JudgeHandler:
         self.request = request
         self.ws = ws
         self.ybt = YBTJudge(config['YBT_uname'],config['YBT_pwd'])
+        self.bzoj = BZOJJudge(config['BZOJ_uname'],config['BZOJ_pwd'])
 
     async def handle(self):
         event = self.request.pop('event', None)
@@ -154,6 +155,19 @@ class JudgeHandler:
                 raise Exception('Something Unexpected Happen')
             else:
                 self.ybt.Monitor(recode_id,self.next,self.end)
+        elif(self.remote['orig_oj']=="BZOI"):
+            logger.info('Choose %s Crawer To Remote: %s, %s, %s', self.remote['orig_oj'], self.domain_id, self.pid, self.rid)
+            while self.bzoj.CheckSession()==False:
+                logger.info('%s Crawer Is Logining', self.remote['orig_oj'])
+                self.bzoj.Login()
+                time.sleep(1)
+            recode_id = self.bzoj.Submit(self.remote['orig_id'],self.code,self.lang)
+            if recode_id == '-1':
+                raise Exception('Submit Too Much Time')
+            elif recode_id == '-2':
+                raise Exception('Something Unexpected Happen')
+            else:
+                self.bzoj.Monitor(self.remote['orig_id'],recode_id,self.next,self.end)
         else:
             raise Exception('Do Not Support % judge',self.remote['orig_oj'])
 
