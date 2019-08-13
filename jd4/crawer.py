@@ -61,13 +61,14 @@ class YBTJudge:
 			pwd = password.split("|")
 			if(len(uname)!=len(pwd)):
 				raise AssertionError
-			tot = len(uname)
+			self.tot = len(uname)
 		else:
 			uname = [username]
 			pwd = [password]
-			tot = 1
+			self.tot = 1
 		self.username = uname
 		self.password = pwd
+		self.now = 0
 		for i in range(0,tot):
 			self.session.append(requests.Session())
 			self.session[i].cookies = cookielib.LWPCookieJar(filename = "YBTcookies"+str(i)+".txt")
@@ -201,13 +202,14 @@ class BZOJJudge:
 			pwd = password.split("|")
 			if(len(uname)!=len(pwd)):
 				raise AssertionError
-			tot = len(uname)
+			self.tot = len(uname)
 		else:
 			uname = [username]
 			pwd = [password]
-			tot = 1
+			self.tot = 1
 		self.username = uname
 		self.password = pwd
+		self.now = 0
 		for i in range(0,tot):
 			self.session.append(requests.Session())
 			self.session[i].cookies = cookielib.LWPCookieJar(filename = "BZOJcookies"+str(i)+".txt")
