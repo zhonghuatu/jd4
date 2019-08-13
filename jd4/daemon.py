@@ -145,7 +145,7 @@ class JudgeHandler:
         loop = get_event_loop()
         self.next(status=STATUS_COMPILING, progress=0)
         if(self.remote['orig_oj']=="YBT"):
-            logger.info('Choose %s Crawer To Remote: %s, %s, %s', self.remote['orig_oj'], self.domain_id, self.pid, self.rid)
+            logger.info('Choose %s Crawer To Remote: %s, %s, %s', self.remote['orig_oj'], self.domain_id, YBTJudge.username[YBTJudge.now])
             while self.ybt.CheckSession()==False:
                 logger.info('%s Crawer Is Logining', self.remote['orig_oj'])
                 self.ybt.Login()
