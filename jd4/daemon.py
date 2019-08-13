@@ -155,6 +155,7 @@ class JudgeHandler:
                 raise Exception('Something Unexpected Happen')
             else:
                 self.ybt.Monitor(recode_id,self.next,self.end)
+            self.ybt.changeAccount()
         elif(self.remote['orig_oj']=="BZOI"):
             logger.info('Choose %s Crawer To Remote: %s, %s, %s', self.remote['orig_oj'], self.domain_id, self.pid, self.rid)
             while self.bzoj.CheckSession()==False:
@@ -168,6 +169,7 @@ class JudgeHandler:
                 raise Exception('Something Unexpected Happen')
             else:
                 self.bzoj.Monitor(self.remote['orig_id'],recode_id,self.next,self.end)
+            self.bzoj.changeAccount()
         else:
             raise Exception('Do Not Support % judge',self.remote['orig_oj'])
 

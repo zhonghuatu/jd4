@@ -1,3 +1,8 @@
-server_url: http://127.0.0.1:8888/
-uname: judge
-password: 123456
+server_url: http://oj.zhtg.red:80/
+uname: "\u4E1C\u5357\u4EE4\u548C\u53F7"
+password: P@ssw0rd
+YBT_uname: BackMountOJ
+YBT_pwd: houshan123
+BZOJ_uname: BackMountOJ
+BZOJ_pwd: houshan123
+last_update_at: 1565527821
