@@ -118,6 +118,7 @@ class YBTJudge:
 			try:
 				return BeautifulSoup("<a>"+res.text+"</a>","lxml").script.string.replace("'","").split("=")[-1].replace(";","")
 			except:
+				print(res.text)
 				return "-2"
 	
 	def Monitor(self,rid,next,end):
