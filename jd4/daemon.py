@@ -24,10 +24,6 @@ class JudgeHandler:
         self.session = session
         self.request = request
         self.ws = ws
-        self.ybt_sys = YBTJudge(config['YBT_uname'],config['YBT_pwd'],True)
-        self.bzoj_sys = BZOJJudge(config['BZOJ_uname'],config['BZOJ_pwd'],True)
-        self.ybt = self.ybt_sys
-        self.bzoj = self.bzoj_sys
 
     async def handle(self):
         event = self.request.pop('event', None)
@@ -145,33 +141,33 @@ class JudgeHandler:
         loop = get_event_loop()
         self.next(status=STATUS_COMPILING, progress=0)
         if(self.remote['orig_oj']=="YBT"):
-            logger.info('Choose %s Crawer To Remote: %s, %s, %s', self.remote['orig_oj'], self.domain_id, self.ybt.username[self.ybt.now])
-            while self.ybt.CheckSession()==False:
+            logger.info('Choose %s Crawer To Remote: %s, %s', self.remote['orig_oj'], self.domain_id, ybt.username[ybt.now])
+            while ybt.CheckSession()==False:
                 logger.info('%s Crawer Is Logining', self.remote['orig_oj'])
-                self.ybt.Login()
+                ybt.Login()
                 time.sleep(1)
-            recode_id = self.ybt.Submit(self.remote['orig_id'],self.code,self.lang)
+            recode_id = ybt.Submit(self.remote['orig_id'],self.code,self.lang)
             if recode_id == '-1':
                 raise Exception('Submit Too Much Time')
             elif recode_id == '-2':
                 raise Exception('Something Unexpected Happen')
             else:
-                self.ybt.Monitor(recode_id,self.next,self.end)
-            self.ybt.changeAccount()
+                ybt.Monitor(recode_id,self.next,self.end)
+            ybt.changeAccount()
         elif(self.remote['orig_oj']=="BZOI"):
             logger.info('Choose %s Crawer To Remote: %s, %s, %s', self.remote['orig_oj'], self.domain_id, self.pid, self.rid)
-            while self.bzoj.CheckSession()==False:
+            while bzoj.CheckSession()==False:
                 logger.info('%s Crawer Is Logining', self.remote['orig_oj'])
-                self.bzoj.Login()
+                bzoj.Login()
                 time.sleep(1)
-            recode_id = self.bzoj.Submit(self.remote['orig_id'],self.code,self.lang)
+            recode_id = bzoj.Submit(self.remote['orig_id'],self.code,self.lang)
             if recode_id == '-1':
                 raise Exception('Submit Too Much Time')
             elif recode_id == '-2':
                 raise Exception('Something Unexpected Happen')
             else:
-                self.bzoj.Monitor(self.remote['orig_id'],recode_id,self.next,self.end)
-            self.bzoj.changeAccount()
+                bzoj.Monitor(self.remote['orig_id'],recode_id,self.next,self.end)
+            bzoj.changeAccount()
         else:
             raise Exception('Do Not Support % judge',self.remote['orig_oj'])
 
@@ -180,6 +176,11 @@ class JudgeHandler:
 
     def end(self, **kwargs):
         self.ws.send_json({'key': 'end', 'tag': self.tag, **kwargs})
+
+ybt_sys = YBTJudge(config['YBT_uname'],config['YBT_pwd'],True)
+bzoj_sys = BZOJJudge(config['BZOJ_uname'],config['BZOJ_pwd'],True)
+ybt = ybt_sys
+bzoj = bzoj_sys
 
 async def update_problem_data(session):
     logger.info('Update problem data')

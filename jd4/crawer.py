@@ -77,7 +77,7 @@ class YBTJudge:
 				for item in self.session[i].cookies:
 					print(item)
 			except:
-				print(str(i) + " Cookie 未能加载")
+				print(self.username[self.now] + " Cookie 未能加载")
 		print("Init")
 
 	def changeAccount(self):
@@ -87,6 +87,7 @@ class YBTJudge:
 		print("YBT Account changes into "+self.username[self.now])
 	
 	def CheckSession(self):
+		print("Check Session For "+self.username[self.now])
 		url = "http://ybt.ssoier.cn:8088"
 		res = self.session[self.now].get(url, headers=HEADERS)
 		res.encoding = 'utf-8'
