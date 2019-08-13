@@ -24,9 +24,10 @@ class JudgeHandler:
         self.session = session
         self.request = request
         self.ws = ws
-        self.ybt = YBTJudge(config['YBT_uname'],config['YBT_pwd'],True)
-        self.bzoj = BZOJJudge(config['BZOJ_uname'],config['BZOJ_pwd'],True)
-        
+        self.ybt_sys = YBTJudge(config['YBT_uname'],config['YBT_pwd'],True)
+        self.bzoj_sys = BZOJJudge(config['BZOJ_uname'],config['BZOJ_pwd'],True)
+        self.ybt = self.ybt_sys
+        self.bzoj = self.bzoj_sys
 
     async def handle(self):
         event = self.request.pop('event', None)
@@ -144,7 +145,7 @@ class JudgeHandler:
         loop = get_event_loop()
         self.next(status=STATUS_COMPILING, progress=0)
         if(self.remote['orig_oj']=="YBT"):
-            logger.info('Choose %s Crawer To Remote: %s, %s, %s', self.remote['orig_oj'], self.domain_id, YBTJudge.username[YBTJudge.now])
+            logger.info('Choose %s Crawer To Remote: %s, %s, %s', self.remote['orig_oj'], self.domain_id, self.ybt.username[self.ybt.now])
             while self.ybt.CheckSession()==False:
                 logger.info('%s Crawer Is Logining', self.remote['orig_oj'])
                 self.ybt.Login()
