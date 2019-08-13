@@ -84,6 +84,7 @@ class YBTJudge:
 		self.now += 1
 		if self.now == self.tot:
 			self.now = 0
+		print("YBT Account changes into "+self.username[self.now])
 	
 	def CheckSession(self):
 		url = "http://ybt.ssoier.cn:8088"
@@ -226,6 +227,7 @@ class BZOJJudge:
 		self.now += 1
 		if self.now == self.tot:
 			self.now = 0
+		print("BZOI Account changes into "+self.username[self.now])
 		
 	def CheckSession(self):
 		url = "https://www.lydsy.com/JudgeOnline/submitpage.php?id=1001"
