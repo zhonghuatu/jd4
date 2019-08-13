@@ -80,7 +80,7 @@ class YBTJudge:
 				print(str(i) + " Cookie 未能加载")
 		print("Init")
 
-	def changeAccount():
+	def changeAccount(self):
 		self.now += 1
 		if self.now == self.tot:
 			self.now = 0
@@ -222,7 +222,7 @@ class BZOJJudge:
 		print("Init")
 	
 
-	def changeAccount():
+	def changeAccount(self):
 		self.now += 1
 		if self.now == self.tot:
 			self.now = 0
