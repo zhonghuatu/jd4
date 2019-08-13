@@ -24,8 +24,10 @@ class JudgeHandler:
         self.session = session
         self.request = request
         self.ws = ws
-        self.ybt = YBTJudge(config['YBT_uname'],config['YBT_pwd'])
-        self.bzoj = BZOJJudge(config['BZOJ_uname'],config['BZOJ_pwd'])
+        self.ybt_sys = YBTJudge(config['YBT_uname'],config['YBT_pwd'],True)
+        self.bzoj_sys = BZOJJudge(config['BZOJ_uname'],config['BZOJ_pwd'],True)
+        self.ybt = self.ybt_sys
+        self.bzoj = self.bzoj_sys
 
     async def handle(self):
         event = self.request.pop('event', None)
