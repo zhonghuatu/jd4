@@ -69,7 +69,7 @@ class YBTJudge:
 		self.username = uname
 		self.password = pwd
 		self.now = 0
-		for i in range(0,tot):
+		for i in range(0,self.tot):
 			self.session.append(requests.Session())
 			self.session[i].cookies = cookielib.LWPCookieJar(filename = "YBTcookies"+str(i)+".txt")
 			try:
@@ -81,35 +81,35 @@ class YBTJudge:
 		print("Init")
 
 	def changeAccount():
-		now += 1
-		if now == tot:
-			now = 0
+		self.now += 1
+		if self.now == self.tot:
+			self.now = 0
 	
 	def CheckSession(self):
 		url = "http://ybt.ssoier.cn:8088"
-		res = self.session[now].get(url, headers=HEADERS)
+		res = self.session[self.now].get(url, headers=HEADERS)
 		res.encoding = 'utf-8'
 		soup = BeautifulSoup(res.text,"lxml").find("th",width="30%").contents[1]
 		return soup.name=='table'
 	
 	def Login(self):
-		print(self.session[now].cookies)
+		print(self.session[self.now].cookies)
 		url = "http://ybt.ssoier.cn:8088/login.php"
-		data={'username':self.username[now],'password':self.password[now],'login':'登录'}
-		res = self.session[now].post(url,data=data,headers=HEADERS)
+		data={'username':self.username[self.now],'password':self.password[self.now],'login':'登录'}
+		res = self.session[self.now].post(url,data=data,headers=HEADERS)
 		res.encoding = 'utf-8'
-		self.session[now].cookies.save()
+		self.session[self.now].cookies.save()
 		
 	def Submit(self,pid,code,lang):
 		data = {
-			"user_id" : self.username[now],
+			"user_id" : self.username[self.now],
 			"problem_id" : pid,
 			"language" : self.SLanguage[lang],
 			"source" : code,
 			"submit" : "提交"
 		}
 		url = "http://ybt.ssoier.cn:8088/action.php"
-		res = self.session[now].post(url,data=data,headers=HEADERS)
+		res = self.session[self.now].post(url,data=data,headers=HEADERS)
 		res.encoding = 'utf-8'
 		if res.text.find("提交频繁啦！")!=-1:
 			return "-1"
@@ -121,7 +121,7 @@ class YBTJudge:
 	
 	def Monitor(self,rid,next,end):
 		url = "http://ybt.ssoier.cn:8088/statusx1.php?runidx="+rid
-		res = self.session[now].get(url,headers=HEADERS)
+		res = self.session[self.now].get(url,headers=HEADERS)
 		res.encoding = 'utf-8'
 		staText = res.text.split(":")
 		while staText[4] == "Waiting" or staText[4] == "Judging":
@@ -130,12 +130,12 @@ class YBTJudge:
 			else:
 				next(status=STATUS_JUDGING, progress=0)
 			time.sleep(1)
-			res = self.session[now].get(url,headers=HEADERS)
+			res = self.session[self.now].get(url,headers=HEADERS)
 			res.encoding = 'utf-8'
 			staText = res.text.split(":")
 		if staText[4] == "Compile Error":
 			url = "http://ybt.ssoier.cn:8088/show_ce_info.php?runid="+rid
-			res = self.session[now].get(url,headers=HEADERS)
+			res = self.session[self.now].get(url,headers=HEADERS)
 			res.encoding = 'utf-8'
 			soup = str(BeautifulSoup(res.text,"lxml").find("td",attrs={"class":"ceinfo"})).replace('<td class="ceinfo">','').replace('</td>','').replace('\n','').replace('<br/>','\n').replace('\n\n','\n')
 			next(compiler_text=soup)
@@ -176,7 +176,7 @@ class YBTJudge:
 				 score=total_score,
 				 time_ms=total_time_usage_ms,
 				 memory_kb=total_memory_usage_kb,
-				 judge_text="This submission is posted to YBTOJ by "+self.username[now])
+				 judge_text="This submission is posted to YBTOJ by "+self.username[self.now])
 			
 class BZOJJudge:
 	session = []
@@ -210,7 +210,7 @@ class BZOJJudge:
 		self.username = uname
 		self.password = pwd
 		self.now = 0
-		for i in range(0,tot):
+		for i in range(0,self.tot):
 			self.session.append(requests.Session())
 			self.session[i].cookies = cookielib.LWPCookieJar(filename = "BZOJcookies"+str(i)+".txt")
 			try:
@@ -223,24 +223,24 @@ class BZOJJudge:
 	
 
 	def changeAccount():
-		now += 1
-		if now == tot:
-			now = 0
+		self.now += 1
+		if self.now == self.tot:
+			self.now = 0
 		
 	def CheckSession(self):
 		url = "https://www.lydsy.com/JudgeOnline/submitpage.php?id=1001"
-		res = self.session[now].get(url, headers=HEADERS)
+		res = self.session[self.now].get(url, headers=HEADERS)
 		res.encoding = 'utf-8'
 		ss = res.text
 		return ss.find("Login")==-1
 	
 	def Login(self):
 		url = "https://www.lydsy.com/JudgeOnline/login.php"
-		data={'user_id':self.username[now],'password':self.password[now],'submit':'Submit'}
-		res = self.session[now].post(url,data=data,headers=HEADERS)
+		data={'user_id':self.username[self.now],'password':self.password[self.now],'submit':'Submit'}
+		res = self.session[self.now].post(url,data=data,headers=HEADERS)
 		res.encoding = 'utf-8'
 		print(res.text)
-		self.session[now].cookies.save()
+		self.session[self.now].cookies.save()
 	
 	def Submit(self,pid,code,lang):
 		data = {
@@ -249,7 +249,7 @@ class BZOJJudge:
 			"source" : code,
 		}
 		url = "https://www.lydsy.com/JudgeOnline/submit.php"
-		res = self.session[now].post(url,data=data,headers=HEADERS)
+		res = self.session[self.now].post(url,data=data,headers=HEADERS)
 		res.encoding = 'utf-8'
 		if res.text.find("You should not submit more than twice in 10 seconds.....")!=-1:
 			return "-1"
@@ -260,8 +260,8 @@ class BZOJJudge:
 				return "-2"
 	
 	def Monitor(self,pid,rid,next,end):
-		url = "https://www.lydsy.com/JudgeOnline/status.php?problem_id="+pid+"&user_id="+self.username[now]
-		res = self.session[now].get(url,headers=HEADERS)
+		url = "https://www.lydsy.com/JudgeOnline/status.php?problem_id="+pid+"&user_id="+self.username[self.now]
+		res = self.session[self.now].get(url,headers=HEADERS)
 		res.encoding = 'utf-8'
 		soup = BeautifulSoup(res.text,"lxml").find("table",align="center").find_all("tr",align="center")
 		for soup1 in soup:
@@ -276,7 +276,7 @@ class BZOJJudge:
 			else:
 				next(status=STATUS_COMPILING, progress=0)
 			time.sleep(1)
-			res = self.session[now].get(url,headers=HEADERS)
+			res = self.session[self.now].get(url,headers=HEADERS)
 			res.encoding = 'utf-8'
 			soup = BeautifulSoup(res.text,"lxml").find("table",align="center").find_all("tr",align="center")
 			for soup1 in soup:
@@ -288,7 +288,7 @@ class BZOJJudge:
 			
 		if soup1[3].string == "Compile_Error":
 			url = "https://www.lydsy.com/JudgeOnline/ceinfo.php?sid="+rid
-			res = self.session[now].get(url,headers=HEADERS)
+			res = self.session[self.now].get(url,headers=HEADERS)
 			res.encoding = 'utf-8'
 			soup = str(BeautifulSoup(res.text,"lxml")).find("pre").string
 			next(compiler_text=soup)
@@ -312,7 +312,7 @@ class BZOJJudge:
 				 score=score,
 				 time_ms=int(soup1[5].contents[0].string),
 				 memory_kb=int(soup1[4].contents[0].string),
-				 judge_text="This submission is posted to BZOJ by "+self.username[now])
+				 judge_text="This submission is posted to BZOJ by "+self.username[self.now])
 		
 '''		
 def nxt(compiler_text="",status="",case="",progress=""):
