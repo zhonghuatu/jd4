@@ -3,3 +3,6 @@ appdirs
 coloredlogs
 cython
 ruamel.yaml
+bs4
+pymongo
+tomd
