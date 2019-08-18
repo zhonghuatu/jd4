@@ -120,7 +120,36 @@ class YBTJudge:
 				return BeautifulSoup("<a>"+res.text+"</a>","lxml").script.string.replace("'","").split("=")[-1].replace(";","")
 			except:
 				print(res.text)
-				return "-2"
+				time.sleep(5)
+				print("Resubmitting...")
+				last = self.now
+				self.changeAccount()
+				return self._Submit(pid,code,lang,last)
+	
+	def _Submit(self,pid,code,lang,last):
+		if(last==self.now):
+			return "-2"
+		data = {
+			"user_id" : self.username[self.now],
+			"problem_id" : pid,
+			"language" : self.SLanguage[lang],
+			"source" : code,
+			"submit" : "提交"
+		}
+		url = "http://ybt.ssoier.cn:8088/action.php"
+		res = self.session[self.now].post(url,data=data,headers=HEADERS)
+		res.encoding = 'utf-8'
+		if res.text.find("提交频繁啦！")!=-1:
+			return "-1"
+		else :
+			try:
+				return BeautifulSoup("<a>"+res.text+"</a>","lxml").script.string.replace("'","").split("=")[-1].replace(";","")
+			except:
+				print(res.text)
+				time.sleep(5)
+				print("Resubmitting...")
+				self.changeAccount()
+				return self._Submit(pid,code,lang,last)
 	
 	def Monitor(self,rid,next,end):
 		url = "http://ybt.ssoier.cn:8088/statusx1.php?runidx="+rid
@@ -261,7 +290,33 @@ class BZOJJudge:
 			try:
 				return BeautifulSoup(res.text,"lxml").find("table",align="center").find("tr",align="center").td.string
 			except:
-				return "-2"
+				time.sleep(5)
+				last = self.now
+				self.changeAccount()
+				print("Resubmitting...")
+				return self._Submit(pid,code,lang,last)
+
+	def _Submit(self,pid,code,lang,last):
+		if(self.now==last):
+			return "-2"
+		data = {
+			"id" : pid,
+			"language" : self.SLanguage[lang],
+			"source" : code,
+		}
+		url = "https://www.lydsy.com/JudgeOnline/submit.php"
+		res = self.session[self.now].post(url,data=data,headers=HEADERS)
+		res.encoding = 'utf-8'
+		if res.text.find("You should not submit more than twice in 10 seconds.....")!=-1:
+			return "-1"
+		else :
+			try:
+				return BeautifulSoup(res.text,"lxml").find("table",align="center").find("tr",align="center").td.string
+			except:
+				time.sleep(5)
+				self.changeAccount()
+				print("Resubmitting...")
+				return self._Submit(pid,code,lang,last)
 	
 	def Monitor(self,pid,rid,next,end):
 		url = "https://www.lydsy.com/JudgeOnline/status.php?problem_id="+pid+"&user_id="+self.username[self.now]
