@@ -180,19 +180,19 @@ class YBTJudge:
 		staText[5] = staText[5].split(",")
 		total_time_usage_ms = 0
 		total_memory_usage_kb = 0
+		total_score = 0
+		total_status = STATUS_WRONG_ANSWER
 		if staText[4][0]=="Accepted":
 			total_score = 100
 			total_status = STATUS_ACCEPTED
-		else:
-			total_score = int(staText[4][1])
-			total_status = STATUS_WRONG_ANSWER
 		for i in range(0,len(staText[5])):
 			if staText[5][i]=="": continue
+			staText[5][i] = staText[5][i].split("|")
 			if staText[5][i][0]=="AC":
 				score = 100//(len(staText[5])-1)
+				total_score += score
 			else:
 				score = 0
-			staText[5][i] = staText[5][i].split("|")
 			staText[5][i][1] = staText[5][i][1].split("_")
 			total_memory_usage_kb += int(staText[5][i][1][0])
 			total_time_usage_ms += int(staText[5][i][1][1])
@@ -202,8 +202,11 @@ class YBTJudge:
 							'score': score,
 							'time_ms': int(staText[5][i][1][1]),
 							'memory_kb': int(staText[5][i][1][0]),
-							'judge_text': self.SResultTip[staText[5][i][0]]},
+							'judge_text': self.SResultTip[staText[5][i][0]]+"	["+str(score)+"]"},
 					  progress=99)
+		if staText[4][0]=="Accepted":
+			total_score = 100
+			total_status = STATUS_ACCEPTED
 		end(status=total_status,
 				 score=total_score,
 				 time_ms=total_time_usage_ms,
@@ -221,10 +224,10 @@ class BZOJJudge:
 		"Accepted":STATUS_ACCEPTED,
 		"Presentation_Error":STATUS_WRONG_ANSWER,
 		"Wrong_Answer":STATUS_WRONG_ANSWER,
-		"Output_Limit_Exceeded":STATUS_WRONG_ANSWER,
+		"Output_Limit_Exceed":STATUS_WRONG_ANSWER,
 		"Runtime_Error":STATUS_RUNTIME_ERROR,
-		"Time_Limit_Exceeded":STATUS_TIME_LIMIT_EXCEEDED,
-		"Memory_Limit_Exceeded":STATUS_MEMORY_LIMIT_EXCEEDED,
+		"Time_Limit_Exceed":STATUS_TIME_LIMIT_EXCEEDED,
+		"Memory_Limit_Exceed":STATUS_MEMORY_LIMIT_EXCEEDED,
 		"Compile Error":STATUS_COMPILE_ERROR
 	}
 	
@@ -349,7 +352,7 @@ class BZOJJudge:
 			url = "https://www.lydsy.com/JudgeOnline/ceinfo.php?sid="+rid
 			res = self.session[self.now].get(url,headers=HEADERS)
 			res.encoding = 'utf-8'
-			soup = str(BeautifulSoup(res.text,"lxml")).find("pre").string
+			soup = BeautifulSoup(res.text,"lxml").find("pre").string
 			next(compiler_text=soup)
 			end(status=STATUS_COMPILE_ERROR,
 				 score=0,
@@ -373,6 +376,173 @@ class BZOJJudge:
 				 memory_kb=int(soup1[4].contents[0].string),
 				 judge_text="This submission is posted to BZOJ by "+self.username[self.now])
 		
+class XJOIJudge:
+	session = []
+	username = []
+	password = []
+	now = 0
+	tot = 0
+	SLanguage = {"cc":"g++","c":"gcc","pas":"fps"}
+	SResult = {
+		"Accepted":STATUS_ACCEPTED,
+		"Wrong Answer":STATUS_WRONG_ANSWER,
+		"Runtime Error":STATUS_RUNTIME_ERROR,
+		"Time Limit Exceeded":STATUS_TIME_LIMIT_EXCEEDED,
+		"Memory Limit Exceeded":STATUS_MEMORY_LIMIT_EXCEEDED,
+		"Compile Error":STATUS_COMPILE_ERROR,
+		"Dangerous Syscall":STATUS_RUNTIME_ERROR,
+		"Running":STATUS_JUDGING
+	}
+	
+	def __init__(self, username, password, multi):
+		if multi:
+			uname = username.split("|")
+			pwd = password.split("|")
+			if(len(uname)!=len(pwd)):
+				raise AssertionError
+			self.tot = len(uname)
+		else:
+			uname = [username]
+			pwd = [password]
+			self.tot = 1
+		self.username = uname
+		self.password = pwd
+		self.now = 0
+		for i in range(0,self.tot):
+			self.session.append(requests.Session())
+			self.session[i].cookies = cookielib.LWPCookieJar(filename = "XJOIcookies"+str(i)+".txt")
+			try:
+				self.session[i].cookies.load()
+				for item in self.session[i].cookies:
+					print(item)
+			except:
+				print(str(i) + " Cookie 未能加载")
+		print("Init")
+	
+
+	def changeAccount(self):
+		self.now += 1
+		if self.now == self.tot:
+			self.now = 0
+		print("XJOI Account changes into "+self.username[self.now])
+		
+	def CheckSession(self):
+		url = "http://www.hzxjhs.com:83/problem/1000"
+		res = self.session[self.now].get(url, headers=HEADERS)
+		res.encoding = 'utf-8'
+		ss = res.text
+		return ss.find("Access Denied")==-1
+	
+	def Login(self):
+		url = "http://www.hzxjhs.com:83/"
+		data={'user':self.username[self.now],'pass':self.password[self.now],'remember':'on'}
+		res = self.session[self.now].post(url,data=data,headers=HEADERS)
+		res.encoding = 'utf-8'
+		print(res.text)
+		self.session[self.now].cookies.save()
+	
+	def Submit(self,pid,code,lang):
+		data = {
+			"proid" : pid,
+			"language" : self.SLanguage[lang],
+			"source" : code,
+		}
+		url = "http://www.hzxjhs.com:83/submit"
+		res = self.session[self.now].post(url,data=data,headers=HEADERS)
+		res.encoding = 'utf-8'
+		if res.text.find("请稍后再提交")!=-1:
+			return "-1"
+		else :
+			try:
+				url = "http://www.hzxjhs.com:83/status?pid="+pid+"&user="+self.username[self.now]+"&status=All&language="+self.SLanguage[lang]
+				res = self.session[self.now].get(url, headers=HEADERS)
+				res.encoding = 'utf-8'
+				return BeautifulSoup(res.text,"lxml").find("a",attrs = {"class":"status-table-text"}).string.replace(" ","")
+			except:
+				time.sleep(10)
+				print("Resubmitting...")
+				return self.Submit(pid,code,lang)
+	
+	def Monitor(self,rid,next,end):
+		url = "http://www.hzxjhs.com:83/detail/"+rid
+		res = self.session[self.now].get(url,headers=HEADERS)
+		res.encoding = 'utf-8'
+		soup = BeautifulSoup(res.text,"lxml").find("textarea",readonly="readonly").string
+		flag = False
+		last = 0
+		if(soup == None or soup.replace(" ","")==""):
+			flag = True
+		else:
+			soup = soup.split("\n")
+			while(soup.count("")):
+				soup.remove("")
+			if soup[1].split(" ")[-1]=="Running":
+				flag = True
+		while flag:
+			flag = False
+			if(soup == None):
+				time.sleep(0.1)
+			elif soup[1].split(" ")[-1]=="Running":
+				if(last<len(soup)-2):
+					for i in range(2+last,len(soup)):
+						soup[i] = soup[i].split(": ")
+						if(soup[i][-1]=="Running"):
+							flag=True
+							break
+						last+=1
+						next(status=STATUS_JUDGING,
+							case={
+								'status': self.SResult[soup[i][-1]],
+								'score': int(soup[i][4][0:-8]),
+								'time_ms': int(soup[i][2][0:-10]),
+								'memory_kb': int(soup[i][3][0:-10]),
+								'judge_text': soup[i][-1]+"["+soup[i][4][0:-8]+"]"},
+							progress=len(soup)-2)
+			else:
+				next(status=STATUS_COMPILING, progress=0)
+			time.sleep(1)
+			res = self.session[self.now].get(url,headers=HEADERS)
+			res.encoding = 'utf-8'
+			soup = BeautifulSoup(res.text,"lxml").find("textarea",readonly="readonly").string
+			if(soup == None or soup==""):
+				flag = True
+			else:
+				soup = soup.split("\n")
+				while(soup.count("")):
+					soup.remove("")
+				if soup[1].split(" ")[-1]=="Running":
+					flag = True
+			
+		if soup[0] == "compile error:":
+			next(compiler_text="\n".join(soup[1:-1]))
+			end(status=STATUS_COMPILE_ERROR,
+				 score=0,
+				 time_ms=0,
+				 memory_kb=0)
+			return
+		res = self.session[self.now].get(url,headers=HEADERS)
+		res.encoding = 'utf-8'
+		soup = BeautifulSoup(res.text,"lxml").find("textarea",readonly="readonly").string
+		soup = soup.split("\n")
+		while(soup.count("")):
+			soup.remove("")
+		if(last<len(soup)-2):
+			for i in range(2+last,len(soup)):
+				soup[i] = soup[i].split(": ")
+				next(status=STATUS_JUDGING,
+					case={
+						'status': self.SResult[soup[i][-1]],
+						'score': int(soup[i][4][0:-8]),
+						'time_ms': int(soup[i][2][0:-10]),
+						'memory_kb': int(soup[i][3][0:-10]),
+						'judge_text': soup[i][-1]+"["+soup[i][4][0:-8]+"]"},
+					progress=len(soup)-2)
+			last = len(soup)-2
+		soup[1] = soup[1].split(": ")
+		end(status=self.SResult[soup[1][-1]],
+				 score=int(soup[1][3][0:-8]),
+				 time_ms=int(soup[1][1][0:-10]),
+				 memory_kb=int(soup[1][2][0:-9]))
 '''		
 def nxt(compiler_text="",status="",case="",progress=""):
 	print("---------next----------")

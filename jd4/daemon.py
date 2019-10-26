@@ -168,6 +168,20 @@ class JudgeHandler:
             else:
                 bzoj.Monitor(self.remote['orig_id'],recode_id,self.next,self.end)
             bzoj.changeAccount()
+        elif(self.remote['orig_oj']=="XJOI"):
+            logger.info('Choose %s Crawer To Remote: %s, %s, %s', self.remote['orig_oj'], self.domain_id, self.pid, self.rid)
+            while xjoi.CheckSession()==False:
+                logger.info('%s Crawer Is Logining', self.remote['orig_oj'])
+                xjoi.Login()
+                time.sleep(1)
+            recode_id = xjoi.Submit(self.remote['orig_id'],self.code,self.lang)
+            if recode_id == '-1':
+                raise Exception('Submit Too Much Time')
+            elif recode_id == '-2':
+                raise Exception('Something Unexpected Happen')
+            else:
+                xjoi.Monitor(recode_id,self.next,self.end)
+            xjoi.changeAccount()
         else:
             raise Exception('Do Not Support % judge',self.remote['orig_oj'])
 
@@ -179,8 +193,10 @@ class JudgeHandler:
 
 ybt_sys = YBTJudge(config['YBT_uname'],config['YBT_pwd'],True)
 bzoj_sys = BZOJJudge(config['BZOJ_uname'],config['BZOJ_pwd'],True)
+xjoi_sys = XJOIJudge(config['XJOI_uname'],config['XJOI_pwd'],True)
 ybt = ybt_sys
 bzoj = bzoj_sys
+xjoi = xjoi_sys
 
 async def update_problem_data(session):
     logger.info('Update problem data')
