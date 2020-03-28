@@ -1,0 +1,2 @@
+#LWP-Cookies-2.0
+Set-Cookie3: username=tanhuanglan35; path="/"; domain="ybt.ssoier.cn"; expires="2019-11-02 02:58:18Z"; version=0

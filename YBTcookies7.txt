@@ -1,2 +1,2 @@
 #LWP-Cookies-2.0
-Set-Cookie3: username=BMOJ6; path="/"; domain="ybt.ssoier.cn"; expires="2019-10-26 11:18:32Z"; version=0
+Set-Cookie3: username=BMOJ6; path="/"; domain="ybt.ssoier.cn"; expires="2019-11-02 12:33:56Z"; version=0

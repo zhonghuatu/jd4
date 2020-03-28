@@ -1,2 +1,1 @@
 #LWP-Cookies-2.0
-Set-Cookie3: lastlang=1; path="/JudgeOnline"; domain="www.lydsy.com"; expires="2019-09-01 16:08:15Z"; version=0

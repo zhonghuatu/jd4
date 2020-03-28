@@ -1,0 +1,118 @@
+[D 191102 19:21:57 selector_events:53] Using selector: EpollSelector
+[I 191102 19:21:58 pool:22] Using parallelism: 2
+[I 191102 19:21:59 api:75] Session is valid
+[I 191102 19:21:59 daemon:202] Update problem data
+[I 191102 19:22:00 api:59] Connected
+[I 191102 19:22:00 daemon:84] Submission Remote: system, 110758, 5dbd2ab10fd45c3636cc6aca ( YBT, 1758 )
+[I 191102 19:22:00 daemon:144] Choose YBT Crawer To Remote: system, BackMountOJ
+[I 191102 19:22:00 connectionpool:208] Starting new HTTP connection (1): ybt.ssoier.cn
+[D 191102 19:22:01 connectionpool:388] "GET / HTTP/1.1" 200 None
+[I 191102 19:22:01 daemon:146] YBT Crawer Is Logining
+[D 191102 19:22:01 connectionpool:388] "POST /login.php HTTP/1.1" 200 None
+[D 191102 19:22:02 connectionpool:388] "GET / HTTP/1.1" 200 None
+[D 191102 19:22:02 connectionpool:388] "POST /action.php HTTP/1.1" 200 None
+[D 191102 19:22:02 connectionpool:388] "GET /statusx1.php?runidx=5566839 HTTP/1.1" 200 None
+[D 191102 19:22:03 connectionpool:388] "GET /statusx1.php?runidx=5566839 HTTP/1.1" 200 None
+[D 191102 19:22:04 connectionpool:388] "GET /statusx1.php?runidx=5566839 HTTP/1.1" 200 None
+[D 191102 19:22:05 connectionpool:388] "GET /statusx1.php?runidx=5566839 HTTP/1.1" 200 None
+[D 191102 19:22:06 connectionpool:388] "GET /statusx1.php?runidx=5566839 HTTP/1.1" 200 None
+[D 191102 19:22:07 connectionpool:388] "GET /statusx1.php?runidx=5566839 HTTP/1.1" 200 None
+[I 191102 19:22:07 daemon:84] Submission Remote: system, 110758, 5dbd2baa0fd45c3636cc6acb ( YBT, 1758 )
+[I 191102 19:22:07 daemon:144] Choose YBT Crawer To Remote: system, 1146
+[I 191102 19:22:07 connectionpool:208] Starting new HTTP connection (1): ybt.ssoier.cn
+[D 191102 19:22:07 connectionpool:388] "GET / HTTP/1.1" 200 None
+[I 191102 19:22:08 daemon:146] YBT Crawer Is Logining
+[D 191102 19:22:08 connectionpool:388] "POST /login.php HTTP/1.1" 200 None
+[D 191102 19:22:09 connectionpool:388] "GET / HTTP/1.1" 200 None
+[D 191102 19:22:09 connectionpool:388] "POST /action.php HTTP/1.1" 200 None
+[D 191102 19:22:09 connectionpool:388] "GET /statusx1.php?runidx=5566840 HTTP/1.1" 200 None
+[D 191102 19:22:11 connectionpool:388] "GET /statusx1.php?runidx=5566840 HTTP/1.1" 200 None
+[D 191102 19:22:12 connectionpool:388] "GET /statusx1.php?runidx=5566840 HTTP/1.1" 200 None
+[D 191102 19:22:13 connectionpool:388] "GET /statusx1.php?runidx=5566840 HTTP/1.1" 200 None
+[D 191102 19:22:14 connectionpool:388] "GET /statusx1.php?runidx=5566840 HTTP/1.1" 200 None
+[D 191102 19:22:15 connectionpool:388] "GET /statusx1.php?runidx=5566840 HTTP/1.1" 200 None
+[D 191102 19:22:16 connectionpool:388] "GET /statusx1.php?runidx=5566840 HTTP/1.1" 200 None
+[D 191102 19:22:17 connectionpool:388] "GET /statusx1.php?runidx=5566840 HTTP/1.1" 200 None
+[I 191102 19:22:17 daemon:84] Submission Remote: system, 110758, 5dbd2d730fd45c3636cc6acc ( YBT, 1758 )
+[I 191102 19:22:17 daemon:144] Choose YBT Crawer To Remote: system, BMOJ
+[I 191102 19:22:17 connectionpool:208] Starting new HTTP connection (1): ybt.ssoier.cn
+[D 191102 19:22:17 connectionpool:388] "GET / HTTP/1.1" 200 None
+[I 191102 19:22:17 daemon:146] YBT Crawer Is Logining
+[D 191102 19:22:17 connectionpool:388] "POST /login.php HTTP/1.1" 200 None
+[D 191102 19:22:18 connectionpool:388] "GET / HTTP/1.1" 200 None
+[D 191102 19:22:18 connectionpool:388] "POST /action.php HTTP/1.1" 200 None
+[D 191102 19:22:19 connectionpool:388] "GET /statusx1.php?runidx=5566843 HTTP/1.1" 200 None
+[D 191102 19:22:20 connectionpool:388] "GET /statusx1.php?runidx=5566843 HTTP/1.1" 200 None
+[D 191102 19:22:21 connectionpool:388] "GET /statusx1.php?runidx=5566843 HTTP/1.1" 200 None
+[D 191102 19:22:22 connectionpool:388] "GET /statusx1.php?runidx=5566843 HTTP/1.1" 200 None
+[D 191102 19:22:23 connectionpool:388] "GET /statusx1.php?runidx=5566843 HTTP/1.1" 200 None
+[D 191102 19:22:24 connectionpool:388] "GET /statusx1.php?runidx=5566843 HTTP/1.1" 200 None
+[D 191102 19:22:25 connectionpool:388] "GET /statusx1.php?runidx=5566843 HTTP/1.1" 200 None
+[D 191102 19:22:53 selector_events:53] Using selector: EpollSelector
+[I 191102 19:22:53 pool:22] Using parallelism: 2
+[I 191102 19:22:53 api:75] Session is valid
+[I 191102 19:22:53 daemon:202] Update problem data
+[I 191102 19:22:54 api:59] Connected
+[I 191102 19:22:59 daemon:84] Submission Remote: system, 110758, 5dbd2baa0fd45c3636cc6acb ( YBT, 1758 )
+[I 191102 19:22:59 daemon:144] Choose YBT Crawer To Remote: system, BackMountOJ
+[I 191102 19:22:59 connectionpool:208] Starting new HTTP connection (1): ybt.ssoier.cn
+[D 191102 19:22:59 connectionpool:388] "GET / HTTP/1.1" 200 None
+[I 191102 19:22:59 daemon:146] YBT Crawer Is Logining
+[D 191102 19:22:59 connectionpool:388] "POST /login.php HTTP/1.1" 200 None
+[D 191102 19:23:00 connectionpool:388] "GET / HTTP/1.1" 200 None
+[D 191102 19:23:00 connectionpool:388] "POST /action.php HTTP/1.1" 200 None
+[D 191102 19:23:00 connectionpool:388] "GET /statusx1.php?runidx=5566860 HTTP/1.1" 200 None
+[D 191102 19:23:01 connectionpool:388] "GET /statusx1.php?runidx=5566860 HTTP/1.1" 200 None
+[D 191102 19:23:02 connectionpool:388] "GET /statusx1.php?runidx=5566860 HTTP/1.1" 200 None
+[D 191102 19:23:04 connectionpool:388] "GET /statusx1.php?runidx=5566860 HTTP/1.1" 200 None
+[D 191102 19:23:05 connectionpool:388] "GET /statusx1.php?runidx=5566860 HTTP/1.1" 200 None
+[D 191102 19:23:06 connectionpool:388] "GET /statusx1.php?runidx=5566860 HTTP/1.1" 200 None
+[D 191102 19:23:07 connectionpool:388] "GET /statusx1.php?runidx=5566860 HTTP/1.1" 200 None
+[D 191102 19:23:08 connectionpool:388] "GET /statusx1.php?runidx=5566860 HTTP/1.1" 200 None
+[I 191102 19:23:08 daemon:84] Submission Remote: system, 110758, 5dbd2ab10fd45c3636cc6aca ( YBT, 1758 )
+[I 191102 19:23:08 daemon:144] Choose YBT Crawer To Remote: system, 1146
+[I 191102 19:23:08 connectionpool:208] Starting new HTTP connection (1): ybt.ssoier.cn
+[D 191102 19:23:08 connectionpool:388] "GET / HTTP/1.1" 200 None
+[I 191102 19:23:08 daemon:146] YBT Crawer Is Logining
+[D 191102 19:23:08 connectionpool:388] "POST /login.php HTTP/1.1" 200 None
+[D 191102 19:23:09 connectionpool:388] "GET / HTTP/1.1" 200 None
+[D 191102 19:23:09 connectionpool:388] "POST /action.php HTTP/1.1" 200 None
+[D 191102 19:23:09 connectionpool:388] "GET /statusx1.php?runidx=5566866 HTTP/1.1" 200 None
+[D 191102 19:23:11 connectionpool:388] "GET /statusx1.php?runidx=5566866 HTTP/1.1" 200 None
+[D 191102 19:23:12 connectionpool:388] "GET /statusx1.php?runidx=5566866 HTTP/1.1" 200 None
+[D 191102 19:23:13 connectionpool:388] "GET /statusx1.php?runidx=5566866 HTTP/1.1" 200 None
+[D 191102 19:23:14 connectionpool:388] "GET /statusx1.php?runidx=5566866 HTTP/1.1" 200 None
+[D 191102 19:23:15 connectionpool:388] "GET /statusx1.php?runidx=5566866 HTTP/1.1" 200 None
+[I 191102 19:23:15 daemon:84] Submission Remote: system, 110758, 5dbd29fe0fd45c3636cc6ac9 ( YBT, 1758 )
+[I 191102 19:23:15 daemon:144] Choose YBT Crawer To Remote: system, BMOJ
+[I 191102 19:23:15 connectionpool:208] Starting new HTTP connection (1): ybt.ssoier.cn
+[D 191102 19:23:15 connectionpool:388] "GET / HTTP/1.1" 200 None
+[I 191102 19:23:15 daemon:146] YBT Crawer Is Logining
+[D 191102 19:23:15 connectionpool:388] "POST /login.php HTTP/1.1" 200 None
+[D 191102 19:23:16 connectionpool:388] "GET / HTTP/1.1" 200 None
+[D 191102 19:23:16 connectionpool:388] "POST /action.php HTTP/1.1" 200 None
+[D 191102 19:23:16 connectionpool:388] "GET /statusx1.php?runidx=5566868 HTTP/1.1" 200 None
+[D 191102 19:23:17 connectionpool:388] "GET /statusx1.php?runidx=5566868 HTTP/1.1" 200 None
+[D 191102 19:23:19 connectionpool:388] "GET /statusx1.php?runidx=5566868 HTTP/1.1" 200 None
+[D 191102 19:23:20 connectionpool:388] "GET /statusx1.php?runidx=5566868 HTTP/1.1" 200 None
+[D 191102 19:23:21 connectionpool:388] "GET /statusx1.php?runidx=5566868 HTTP/1.1" 200 None
+[D 191102 19:23:22 connectionpool:388] "GET /statusx1.php?runidx=5566868 HTTP/1.1" 200 None
+[I 191102 19:23:22 daemon:84] Submission Remote: system, 110758, 5dbd29e80fd45c3636cc6ac8 ( YBT, 1758 )
+[I 191102 19:23:22 daemon:144] Choose YBT Crawer To Remote: system, BMOJ2
+[I 191102 19:23:22 connectionpool:208] Starting new HTTP connection (1): ybt.ssoier.cn
+[D 191102 19:23:22 connectionpool:388] "GET / HTTP/1.1" 200 None
+[I 191102 19:23:22 daemon:146] YBT Crawer Is Logining
+[D 191102 19:23:22 connectionpool:388] "POST /login.php HTTP/1.1" 200 None
+[D 191102 19:23:23 connectionpool:388] "GET / HTTP/1.1" 200 None
+[D 191102 19:23:23 connectionpool:388] "POST /action.php HTTP/1.1" 200 None
+[D 191102 19:23:24 connectionpool:388] "GET /statusx1.php?runidx=5566870 HTTP/1.1" 200 None
+[D 191102 19:23:25 connectionpool:388] "GET /statusx1.php?runidx=5566870 HTTP/1.1" 200 None
+[D 191102 19:23:25 connectionpool:388] "GET /show_ce_info.php?runid=5566870 HTTP/1.1" 200 None
+[I 191102 19:23:25 daemon:84] Submission Remote: system, 110758, 5dbd28e80fd45c3636cc6ac7 ( YBT, 1758 )
+[I 191102 19:23:25 daemon:144] Choose YBT Crawer To Remote: system, BMOJ3
+[I 191102 19:23:25 connectionpool:208] Starting new HTTP connection (1): ybt.ssoier.cn
+[D 191209 12:51:52 selector_events:53] Using selector: EpollSelector
+[I 191209 12:51:52 pool:22] Using parallelism: 2
+[I 191209 12:51:52 api:75] Session is valid
+[I 191209 12:51:52 daemon:202] Update problem data
+[I 191209 12:51:53 api:59] Connected

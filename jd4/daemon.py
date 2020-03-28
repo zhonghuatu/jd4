@@ -151,6 +151,8 @@ class JudgeHandler:
                 raise Exception('Submit Too Much Time')
             elif recode_id == '-2':
                 raise Exception('Something Unexpected Happen')
+            elif recode_id == '-3':
+                raise Exception('Your program has restricted functions.')
             else:
                 ybt.Monitor(recode_id,self.next,self.end)
             ybt.changeAccount()
@@ -182,6 +184,33 @@ class JudgeHandler:
             else:
                 xjoi.Monitor(recode_id,self.next,self.end)
             xjoi.changeAccount()
+        elif(self.remote['orig_oj']=="CF"):
+            if not self.lang in cf.SLanguage:
+                raise Exception('LANGUAGE NOT SUPPORT')
+            logger.info('Choose %s Crawer To Remote: %s, %s, %s', self.remote['orig_oj'], self.domain_id, self.pid, self.rid)
+            recode_id = cf.Submit(self.remote['orig_id'],self.code,self.lang)
+            if recode_id == '-1':
+                raise Exception('Submit Failed')
+            else:
+                cf.Monitor(recode_id,self.next,self.end)
+        elif(self.remote['orig_oj']=="POJ"):
+            if not self.lang in poj.SLanguage:
+                raise Exception('LANGUAGE NOT SUPPORT')
+            logger.info('Choose %s Crawer To Remote: %s, %s, %s', self.remote['orig_oj'], self.domain_id, self.pid, self.rid)
+            recode_id = poj.Submit(self.remote['orig_id'],self.code,self.lang)
+            if recode_id == '-1':
+                raise Exception('Submit Failed')
+            else:
+                poj.Monitor(recode_id,self.next,self.end)
+        elif(self.remote['orig_oj']=="HDU"):
+            if not self.lang in hdu.SLanguage:
+                raise Exception('LANGUAGE NOT SUPPORT')
+            logger.info('Choose %s Crawer To Remote: %s, %s, %s', self.remote['orig_oj'], self.domain_id, self.pid, self.rid)
+            recode_id = hdu.Submit(self.remote['orig_id'],self.code,self.lang)
+            if recode_id == '-1':
+                raise Exception('Submit Failed')
+            else:
+                hdu.Monitor(recode_id,self.next,self.end)
         else:
             raise Exception('Do Not Support % judge',self.remote['orig_oj'])
 
@@ -191,12 +220,19 @@ class JudgeHandler:
     def end(self, **kwargs):
         self.ws.send_json({'key': 'end', 'tag': self.tag, **kwargs})
 
-ybt_sys = YBTJudge(config['YBT_uname'],config['YBT_pwd'],True)
+#ybt_sys = YBTJudge(config['YBT_uname'],config['YBT_pwd'],True)
+ybt_sys = YBTJudge(config['YBT_uname'],config['YBT_cookies'],True,True)
 bzoj_sys = BZOJJudge(config['BZOJ_uname'],config['BZOJ_pwd'],True)
 xjoi_sys = XJOIJudge(config['XJOI_uname'],config['XJOI_pwd'],True)
+cf_sys = CFJudge()
+poj_sys = POJJudge()
+hdu_sys = HDUJudge()
 ybt = ybt_sys
 bzoj = bzoj_sys
 xjoi = xjoi_sys
+cf = cf_sys
+poj = poj_sys
+hdu = hdu_sys
 
 async def update_problem_data(session):
     logger.info('Update problem data')
