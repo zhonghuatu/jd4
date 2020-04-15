@@ -1,2 +1,0 @@
-#LWP-Cookies-2.0
-Set-Cookie3: username=BackMountOJ; path="/"; domain="ybt.ssoier.cn"; expires="2019-12-09 17:06:41Z"; version=0
