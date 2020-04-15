@@ -19,6 +19,7 @@ from jd4.status import STATUS_ACCEPTED, STATUS_WRONG_ANSWER, \
                        STATUS_TIME_LIMIT_EXCEEDED, STATUS_MEMORY_LIMIT_EXCEEDED, \
                        STATUS_RUNTIME_ERROR, STATUS_SYSTEM_ERROR
 from jd4.util import read_pipe, parse_memory_bytes, parse_time_ns
+from jd4.log import logger
 
 CHUNK_SIZE = 32768
 MAX_STDERR_SIZE = 8192

@@ -62,7 +62,7 @@ class JudgeHandler:
         except Exception as e:
             logger.exception(e)
             self.next(judge_text=repr(e))
-            self.end(status=STATUS_SYSTEM_ERROR, score=0, time_ms=0, memory_kb=0)
+            self.end(status=STATUS_SYSTEM_ERROR, score=0, time_ms=0, memory_kb=0, judge_text=repr(e))
 
     async def update_problem_data(self):
         domain_id = self.request.pop('domain_id')
