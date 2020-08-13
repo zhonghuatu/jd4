@@ -168,7 +168,7 @@ class JudgeHandler:
             elif recode_id == '-2':
                 raise Exception('Something Unexpected Happen')
             else:
-                bzoj.Monitor(self.remote['orig_id'],recode_id,self.next,self.end)
+                bzoj.Monitor(recode_id,self.next,self.end)
             bzoj.changeAccount()
         elif(self.remote['orig_oj']=="XJOI"):
             logger.info('Choose %s Crawer To Remote: %s, %s, %s', self.remote['orig_oj'], self.domain_id, self.pid, self.rid)
@@ -181,6 +181,8 @@ class JudgeHandler:
                 raise Exception('Submit Too Much Time')
             elif recode_id == '-2':
                 raise Exception('Something Unexpected Happen')
+            elif recode_id == '-3':
+                raise Exception('Access Denied')
             else:
                 xjoi.Monitor(recode_id,self.next,self.end)
             xjoi.changeAccount()
@@ -211,6 +213,22 @@ class JudgeHandler:
                 raise Exception('Submit Failed')
             else:
                 hdu.Monitor(recode_id,self.next,self.end)
+        elif(self.remote['orig_oj']=="TK"):
+            logger.info('Choose %s Crawer To Remote: %s, %s, %s', self.remote['orig_oj'], self.domain_id, self.pid, self.rid)
+            while tk.CheckSession()==False:
+                logger.info('%s Crawer Is Logining', self.remote['orig_oj'])
+                tk.Login()
+                time.sleep(1)
+            recode_id = tk.Submit(self.remote['orig_id'],self.code,self.lang)
+            if recode_id == '-1':
+                raise Exception('Submit Too Much Time')
+            elif recode_id == '-2':
+                raise Exception('Something Unexpected Happen')
+            elif recode_id == '-3':
+                raise Exception('Auto-Verification Code Wrong! Please submit it again.')
+            else:
+                tk.Monitor(recode_id,self.next,self.end)
+            tk.changeAccount()
         else:
             raise Exception('Do Not Support % judge',self.remote['orig_oj'])
 
@@ -222,17 +240,20 @@ class JudgeHandler:
 
 #ybt_sys = YBTJudge(config['YBT_uname'],config['YBT_pwd'],True)
 ybt_sys = YBTJudge(config['YBT_uname'],config['YBT_cookies'],True,True)
-bzoj_sys = BZOJJudge(config['BZOJ_uname'],config['BZOJ_pwd'],True)
+bzoj_sys = DBzojJudge(config['BZOJ_uname'],config['BZOJ_pwd'],True)
 xjoi_sys = XJOIJudge(config['XJOI_uname'],config['XJOI_pwd'],True)
 cf_sys = CFJudge()
 poj_sys = POJJudge()
 hdu_sys = HDUJudge()
+tk_sys = TKJudge(config['TK_uname'],config['TK_pwd'],True)
+
 ybt = ybt_sys
 bzoj = bzoj_sys
 xjoi = xjoi_sys
 cf = cf_sys
 poj = poj_sys
 hdu = hdu_sys
+tk = tk_sys
 
 async def update_problem_data(session):
     logger.info('Update problem data')

@@ -5,12 +5,14 @@ import pymongo
 import time
 import tomd
 import datetime
-import json
-import re
+import json,random
+import re,os
 import http.cookiejar as cookielib
 from requests.cookies import RequestsCookieJar
 import configparser
 import pymysql
+import hashlib
+from jd4 import recognize
 
 HEADERS = {
     # User-Agent(UA) 服务器能够识别客户使用的操作系统及版本、CPU 类型、浏览器及版本、浏览器渲染引擎、浏览器语言、浏览器插件等。也就是说伪装成浏览器进行访问
@@ -74,13 +76,21 @@ class YBTJudge:
         self.password = pwd
         self.useCookie = uCookie
         self.now = 0
-        for i in range(0,self.tot):
+        '''for i in range(0,self.tot):
             self.session.append(requests.Session())
             self.session[i].cookies = cookielib.LWPCookieJar(filename = "YBTcookies"+str(i)+".txt")
             try:
                 self.session[i].cookies.load()
                 for item in self.session[i].cookies:
-                    print(item)
+                    print(item)'''
+        for i in range(0,self.tot):
+            self.session.append(requests.Session())
+            try:
+                config=configparser.ConfigParser()
+                config.read("cookies/YBT.ini")
+                f = json.loads(config.get(self.username[i],"contents"))
+                print(self.csrf[i],self.bfaa[i],self.ftaa[i],self.tta[i])
+                self.session[i].cookies=requests.utils.cookiejar_from_dict(f, cookiejar=None, overwrite=True)
             except:
                 print(self.username[self.now] + " Cookie 未能加载")
         print("Init")
@@ -99,12 +109,12 @@ class YBTJudge:
             Headers['Cookie']=self.password[self.now]
             res = self.session[self.now].get(url, headers=Headers)
             res.encoding = 'utf-8'
-            soup = BeautifulSoup(res.text,"lxml").find("th",width="30%").contents[1]
+            soup = BeautifulSoup(res.text,"lxml").find_all("th",width="15%")[1].contents[1]
             return soup.name=='table'
         else:
             res = self.session[self.now].get(url, headers=HEADERS)
             res.encoding = 'utf-8'
-            soup = BeautifulSoup(res.text,"lxml").find("th",width="30%").contents[1]
+            soup = BeautifulSoup(res.text,"lxml").find_all("th",width="15%")[1].contents[1]
             return soup.name=='table'
     
     def Login(self):
@@ -113,7 +123,16 @@ class YBTJudge:
         data={'username':self.username[self.now],'password':self.password[self.now],'login':'登录'}
         res = self.session[self.now].post(url,data=data,headers=HEADERS)
         res.encoding = 'utf-8'
-        self.session[self.now].cookies.save()
+        
+        cookie=requests.utils.dict_from_cookiejar(res.cookies)
+        config=configparser.ConfigParser()
+        config.read("cookies/YBT.ini")
+        try:
+            config.add_section(self.username[self.now])
+        except:
+            pass
+        config.set(self.username[self.now],"contents",json.dumps(cookie))
+        config.write(open("cookies/YBT.ini", "w"))
         
     def Submit(self,pid,code,lang):
         data = {
@@ -473,7 +492,7 @@ class XJOIJudge:
             self.session.append(requests.Session())
             try:
                 config=configparser.ConfigParser()
-                config.read("XJOI.ini")
+                config.read("cookies/XJOI.ini")
                 f = json.loads(config.get(self.username[i],"contents"))
                 print(self.csrf[i],self.bfaa[i],self.ftaa[i],self.tta[i])
                 self.session[i].cookies=requests.utils.cookiejar_from_dict(f, cookiejar=None, overwrite=True)
@@ -514,13 +533,13 @@ class XJOIJudge:
         
         cookie=requests.utils.dict_from_cookiejar(res.cookies)
         config=configparser.ConfigParser()
-        config.read("XJOI.ini")
+        config.read("cookies/XJOI.ini")
         try:
             config.add_section(self.username[self.now])
         except:
             pass
         config.set(self.username[self.now],"contents",json.dumps(cookie))
-        config.write(open("XJOI.ini", "w"))
+        config.write(open("cookies/XJOI.ini", "w"))
     
     def Submit(self,pid,code,lang):
         data = {
@@ -531,8 +550,11 @@ class XJOIJudge:
         url = "http://115.236.49.52:83/submit"
         res = self.session[self.now].post(url,data=data,headers=HEADERS)
         res.encoding = 'utf-8'
+        print(res.text)
         if res.text.find("请稍后再提交")!=-1:
             return "-1"
+        elif res.text.find("Access Denied")!=-1:
+            return "-3"
         else :
             try:
                 url = "http://115.236.49.52:83/status?pid="+pid+"&user="+self.username[self.now]+"&status=All&language="+self.SLanguage[lang]
@@ -624,6 +646,558 @@ class XJOIJudge:
                  score=int(soup[1][3][0:-8]),
                  time_ms=int(soup[1][1][0:-10]),
                  memory_kb=int(soup[1][2][0:-9]))
+
+class HUSTJudge:
+    BASE_OJ = "HUSTDemo"
+    SHOW_OJ = "HUSTDemo"
+    BASE_URL = "http://demo.hustoj.com"
+    SHOW_RE = True
+    session = []
+    username = []
+    password = []
+    now = 0
+    tot = 0
+    vcode = False
+    SLanguage = {
+        "pas"  :2,
+        "cc"   :1,
+        "c"    :0,
+        "java" :3,
+        "py"   :6,
+        "cs"   :9,
+        "php"  :7,
+        "go"   :17,
+        "js"   :16,
+        "rb"   :4
+    }
+    SResult = {
+        "Accepted":STATUS_ACCEPTED,
+        "Presentation Error":STATUS_WRONG_ANSWER,
+        "Wrong Answer":STATUS_WRONG_ANSWER,
+        "Output Limit Exceeded":STATUS_WRONG_ANSWER,
+        "Runtime Error":STATUS_RUNTIME_ERROR,
+        "Time Limit Exceeded":STATUS_TIME_LIMIT_EXCEEDED,
+        "Memory Limit Exceeded":STATUS_MEMORY_LIMIT_EXCEEDED,
+        "Compile Error":STATUS_COMPILE_ERROR,
+        "Running":STATUS_JUDGING
+    }
+    SResult1 = [
+        STATUS_COMPILING,STATUS_COMPILING,STATUS_COMPILING,STATUS_JUDGING,STATUS_ACCEPTED,
+        STATUS_WRONG_ANSWER,STATUS_WRONG_ANSWER,STATUS_TIME_LIMIT_EXCEEDED,STATUS_MEMORY_LIMIT_EXCEEDED,STATUS_WRONG_ANSWER,
+        STATUS_RUNTIME_ERROR,STATUS_COMPILE_ERROR,STATUS_COMPILING,STATUS_JUDGING
+    ]
+    HEADERS = {}
+    def __init__(self, username, password, multi):
+        if multi:
+            uname = username.split("|")
+            pwd = password.split("|")
+            if(len(uname)!=len(pwd)):
+                raise AssertionError
+            self.tot = len(uname)
+        else:
+            uname = [username]
+            pwd = [password]
+            self.tot = 1
+        self.username = uname
+        self.password = pwd
+        self.now = random.randint(0,len(self.username)-1)
+        self.HEADERS = {
+            # User-Agent(UA) 服务器能够识别客户使用的操作系统及版本、CPU 类型、浏览器及版本、浏览器渲染引擎、浏览器语言、浏览器插件等。也就是说伪装成浏览器进行访问
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36',
+            # 用于告诉服务器我是从哪个页面链接过来的，服务器基此可以获得一些信息用于处理。如果不加入，服务器可能依旧会判断为非法请求
+            'Referer': self.BASE_URL,
+            'Host': self.BASE_URL.replace("http://","").replace("https://","")
+        }
+        
+        """for i in range(0,self.tot):
+            self.session.append(requests.Session())
+            self.session[i].cookies = cookielib.LWPCookieJar(filename = "XJOIcookies"+str(i)+".txt")
+            try:
+                self.session[i].cookies.load()
+                for item in self.session[i].cookies:
+                    print(item)"""
+        for i in range(0,self.tot):
+            self.session.append(requests.Session())
+            try:
+                config=configparser.ConfigParser()
+                config.read("cookies/"+self.BASE_OJ+".ini")
+                f = json.loads(config.get(self.username[i],"contents"))
+                print(self.csrf[i],self.bfaa[i],self.ftaa[i],self.tta[i])
+                self.session[i].cookies=requests.utils.cookiejar_from_dict(f, cookiejar=None, overwrite=True)
+            except:
+                print(str(i) + " Cookie 未能加载")
+        print("Init")
+    
+    def __vcode(self):
+        url = self.BASE_URL + "/vcode.php"
+        res = self.session[self.now].get(url,headers=self.HEADERS)
+        #data["vcode"] = recognize.recog(Bytes2Data(res.content))
+        path = "vcode/vcode-"+str(time.time())+".gif"
+        with open(path,"wb") as f:
+            f.write(res.content)
+            f.close()
+        res = recognize.recog(path)
+        res = res.replace(".","").replace("-","").replace("*","").replace(":","")
+        print(path,res)
+        while ((not res.isdigit()) or len(res)!=4):
+            os.remove(path)
+            time.sleep(1)
+            url = self.BASE_URL + "/vcode.php"
+            res = self.session[self.now].get(url,headers=self.HEADERS)
+            #data["vcode"] = recognize.recog(Bytes2Data(res.content))
+            path = "vcode/vcode-"+str(time.time())+".gif"
+            with open(path,"wb") as f:
+                f.write(res.content)
+                f.close()
+            res = recognize.recog(path)
+            res = res.replace(".","").replace("-","").replace("*","").replace(":","")
+            print(path,res)
+        return res
+    
+    def changeAccount(self):
+        self.now += 1
+        if self.now == self.tot:
+            self.now = 0
+        print(self.BASE_OJ+"(HUST) Account changes into "+self.username[self.now])
+        
+    def CheckSession(self):
+        url = self.BASE_URL + "/submitpage.php?id=1000"
+        res = self.session[self.now].get(url, headers=self.HEADERS)
+        res.encoding = 'utf-8'
+        ss = res.text
+        print(ss.find('loginpage.php'))
+        return ss.find('loginpage.php')==-1
+    
+    def Login(self):
+        url = self.BASE_URL + "/csrf.php"
+        res = self.session[self.now].get(url,headers=self.HEADERS)
+        res.encoding = 'utf-8'
+        
+        #print(res.text)
+        csrf = BeautifulSoup(res.text,"lxml").find("input",attrs={"name":"csrf"})["value"]
+        
+        data = {
+            "csrf"    : csrf,
+            "submit"  : "",
+            "user_id": self.username[self.now],
+            "password": self.password[self.now]
+        }
+        
+        if(self.vcode):
+            data["vcode"] = self.__vcode()
+        
+        url = self.BASE_URL + "/login.php"
+        res = self.session[self.now].post(url,headers=self.HEADERS,data=data)
+        res.encoding = 'utf-8'
+        if res.text.find("history.go(-2);")!=-1:
+            print("Succeed in logining",self.BASE_OJ)
+        else:
+            print(re.search(r"alert\('(.+?)'\)", res.text, re.M|re.I).group()[7:-3])
+        
+        cookie=requests.utils.dict_from_cookiejar(res.cookies)
+        config=configparser.ConfigParser()
+        config.read("cookies/"+self.BASE_OJ+".ini")
+        try:
+            config.add_section(self.username[self.now])
+        except:
+            pass
+        config.set(self.username[self.now],"contents",json.dumps(cookie))
+        config.write(open("cookies/"+self.BASE_OJ+".ini", "w"))
+    
+    def Submit(self,pid,code,lang):
+        url = self.BASE_URL + "/csrf.php"
+        res = self.session[self.now].get(url,headers=self.HEADERS)
+        res.encoding = 'utf-8'
+        
+        #print(res.text)
+        csrf = BeautifulSoup(res.text,"lxml").find("input",attrs={"name":"csrf"})["value"]
+        
+        data = {
+            "id"      : pid,
+            "language": self.SLanguage[lang],
+            "source"  : code,
+            "csrf"    : csrf
+        }
+        
+        if(self.vcode):
+            data["vcode"] = self.__vcode()
+        
+        url = self.BASE_URL + "/submit.php"
+        res = self.session[self.now].post(url,data=data)
+        res.encoding = 'utf-8'
+        #print(res.text)
+        if(res.text.find("提交超过")!=-1):
+            return "-1"
+        elif(res.text.find("Verification Code Wrong!")!=-1):
+            return "-3"
+        try:
+            return BeautifulSoup(res.text,"lxml").find("table",attrs={"id":"result-tab"}).tbody.tr.td.string
+        except:
+            print(res.text,BeautifulSoup(res.text,"lxml").find("table",attrs={"id":"result-tab"}))
+            return "-2"
+    
+    def Monitor(self,rid,next,end):
+        print(rid)
+        url = self.BASE_URL + "/status-ajax.php?solution_id="+rid
+        res = self.session[self.now].get(url,headers=self.HEADERS)
+        res.encoding = 'utf-8'
+        ress = res.text.split(",")
+        #print(res.text)
+        
+        while self.SResult1[int(ress[0])]==STATUS_COMPILING or self.SResult1[int(ress[0])]==STATUS_JUDGING:
+            next(status=self.SResult1[int(ress[0])], progress=0)
+            time.sleep(1)
+            url = self.BASE_URL + "/status-ajax.php?solution_id="+rid
+            res = self.session[self.now].get(url,headers=self.HEADERS)
+            res.encoding = 'utf-8'
+            ress = res.text.split(",")
+        
+        next(status=STATUS_JUDGING, progress=75)
+        
+        if self.SResult1[int(ress[0])]==STATUS_COMPILING == STATUS_COMPILE_ERROR:
+            url = self.BASE_URL + "/ceinfo.php?sid="+rid
+            res = self.session[self.now].get(url,headers=self.HEADERS)
+            res.encoding = 'utf-8'
+            next(compiler_text=str(soup.find("pre",attrs={"id":"errtxt"}).string))
+            end(status=STATUS_COMPILE_ERROR,
+                 score=0,
+                 time_ms=0,
+                 memory_kb=0)
+            return
+        
+        if(len(ress)>=5):
+            score = str(ress[4])
+        elif self.SResult1[int(ress[0])]==STATUS_ACCEPTED:
+            score = 100
+        else:
+            score = 0
+        
+        if self.SHOW_RE:
+            url = self.BASE_URL + "/reinfo.php?sid="+rid
+            res = self.session[self.now].get(url,headers=self.HEADERS)
+            res.encoding = 'utf-8'
+            watext = "\n---------------OJ Returns---------------n" + str(soup.find("pre",attrs={"id":"errtxt"}).string)
+        else:
+            watext = ""
+        
+        watext = "This submission is posted to " + self.SHOW_OJ + "(HUST) by " + self.username[self.now] + watext
+        
+        next(status=STATUS_JUDGING,
+                case={
+                    'status': self.SResult1[int(ress[0])],
+                    'score': score,
+                    'time_ms': int(ress[2].replace(" ms","")),
+                    'memory_kb': int(ress[1].replace(" KB","")),
+                    'judge_text': ""},
+                progress=99)
+        
+        end(status=self.SResult1[int(ress[0])],
+                 score=score,
+                 time_ms=int(ress[2].replace(" ms","")),
+                 memory_kb=int(ress[1].replace(" KB","")),
+                 judge_text=watext)
+
+class TKJudge(HUSTJudge):
+    BASE_OJ = "TK"
+    SHOW_OJ = ""
+    BASE_URL = "http://tk.hustoj.com"
+    vcode = True
+    SHOW_RE = False
+
+class UOJJudge:
+    BASE_OJ = "UOJ"
+    BASE_URL = "http://uoj.ac"
+    session = []
+    username = []
+    password = []
+    now = 0
+    tot = 0
+    HEADERS = {}
+    SLanguage = {
+        "pas":"Pascal",
+        "cc":"C++",
+        "c":"C",
+        "java":"Java7",
+        "py":"Python2.7",
+        "py3":"Python3",
+        "cs":"C++11",
+        "js":"Java8",
+    }
+    SResult = {
+        "Accepted":STATUS_ACCEPTED,
+        "Wrong Answer":STATUS_WRONG_ANSWER,
+        "Runtime Error":STATUS_RUNTIME_ERROR,
+        "Time Limit Exceeded":STATUS_TIME_LIMIT_EXCEEDED,
+        "Memory Limit Exceeded":STATUS_MEMORY_LIMIT_EXCEEDED,
+        "Compile Error":STATUS_COMPILE_ERROR,
+        "Dangerous Syscall":STATUS_RUNTIME_ERROR,
+        "Running":STATUS_JUDGING
+    }
+    
+    def __init__(self, username, password, multi):
+        if multi:
+            uname = username.split("|")
+            pwd = password.split("|")
+            if(len(uname)!=len(pwd)):
+                raise AssertionError
+            self.tot = len(uname)
+        else:
+            uname = [username]
+            pwd = [password]
+            self.tot = 1
+        self.username = uname
+        self.password = pwd
+        self.now = 0
+        self.HEADERS = {
+            # User-Agent(UA) 服务器能够识别客户使用的操作系统及版本、CPU 类型、浏览器及版本、浏览器渲染引擎、浏览器语言、浏览器插件等。也就是说伪装成浏览器进行访问
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36',
+            # 用于告诉服务器我是从哪个页面链接过来的，服务器基此可以获得一些信息用于处理。如果不加入，服务器可能依旧会判断为非法请求
+            'Referer': self.BASE_URL + "/submission",
+            'Host': self.BASE_URL.replace("http://","").replace("https://","")
+        }
+        
+        """for i in range(0,self.tot):
+            self.session.append(requests.Session())
+            self.session[i].cookies = cookielib.LWPCookieJar(filename = "XJOIcookies"+str(i)+".txt")
+            try:
+                self.session[i].cookies.load()
+                for item in self.session[i].cookies:
+                    print(item)"""
+        for i in range(0,self.tot):
+            self.session.append(requests.Session())
+            try:
+                config=configparser.ConfigParser()
+                config.read("cookies/"+self.BASE_OJ+".ini")
+                f = json.loads(config.get(self.username[i],"contents"))
+                print(self.csrf[i],self.bfaa[i],self.ftaa[i],self.tta[i])
+                self.session[i].cookies=requests.utils.cookiejar_from_dict(f, cookiejar=None, overwrite=True)
+            except:
+                print(str(i) + " Cookie 未能加载")
+        print("Init")
+    
+    def changeAccount(self):
+        self.now += 1
+        if self.now == self.tot:
+            self.now = 0
+        print(self.BASE_OJ+"(UOJ) Account changes into "+self.username[self.now])
+        
+    def CheckSession(self):
+        url = self.BASE_URL
+        res = self.session[self.now].get(url, headers=self.HEADERS)
+        res.encoding = 'utf-8'
+        ss = res.text
+        return ss.find(self.BASE_URL+"/login")==-1
+    
+    def Login(self):
+        url = self.BASE_URL + "/login"
+        res = self.session[self.now].get(url,headers=self.HEADERS)
+        res.encoding = 'utf-8'
+        
+        token = re.search(r'_token : "(.+?)"', res.text, re.M|re.I).group()[10:70]
+        #print("token:",token,"(",len(token),")")
+        #salt = bytes(re.search(r'val\(\), "(.+?)"', res.text, re.M|re.I).group()[8:-1], encoding='utf-8')
+        #obj=hashlib.md5(salt)
+        #obj.update(self.password[self.now].encode('utf-8'))
+        #pwd = str(obj.hexdigest())
+        pwd = self.password[self.now]
+        
+        #with open("web.html","w") as f:
+        #    f.write(res.text + "\n\ntoken : " + token + "\nsalt  : " + re.search(r'val\(\), "(.+?)"', res.text, re.M|re.I).group()[8:-1])
+        
+        data = {
+            "_token"  : token,
+            "login"   : "",
+            "username": self.username[self.now],
+            "password": pwd
+        }
+        print(data)
+        res = self.session[self.now].post(url,headers=self.HEADERS,data=data)
+        
+        cookie=requests.utils.dict_from_cookiejar(res.cookies)
+        config=configparser.ConfigParser()
+        config.read("cookies/"+self.BASE_OJ+".ini")
+        try:
+            config.add_section(self.username[self.now])
+        except:
+            pass
+        config.set(self.username[self.now],"contents",json.dumps(cookie))
+        config.write(open("cookies/"+self.BASE_OJ+".ini", "w"))
+    
+    def Submit(self,pid,code,lang):
+        url = self.BASE_URL + "/problem/"+str(pid)
+        res = self.session[self.now].get(url,headers=self.HEADERS)
+        res.encoding = 'utf-8'
+        token = BeautifulSoup(res.text,"lxml").find_all("input",attrs = {"name":"_token"})[0]['value']
+        data = """-----------------------------2341433157197025002472170340
+Content-Disposition: form-data; name="_token"
+
+{0}
+-----------------------------2341433157197025002472170340
+Content-Disposition: form-data; name="answer_answer_language"
+
+{1}
+-----------------------------2341433157197025002472170340
+Content-Disposition: form-data; name="answer_answer_upload_type"
+
+editor
+-----------------------------2341433157197025002472170340
+Content-Disposition: form-data; name="answer_answer_editor"
+
+{2}
+-----------------------------2341433157197025002472170340
+Content-Disposition: form-data; name="answer_answer_file"; filename=""
+Content-Type: application/octet-stream
+
+
+-----------------------------2341433157197025002472170340
+Content-Disposition: form-data; name="submit-answer"
+
+answer
+-----------------------------2341433157197025002472170340--
+""".format(token,self.SLanguage[lang],code)
+        hder = {
+            # User-Agent(UA) 服务器能够识别客户使用的操作系统及版本、CPU 类型、浏览器及版本、浏览器渲染引擎、浏览器语言、浏览器插件等。也就是说伪装成浏览器进行访问
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.139 Safari/537.36',
+            # 用于告诉服务器我是从哪个页面链接过来的，服务器基此可以获得一些信息用于处理。如果不加入，服务器可能依旧会判断为非法请求
+            'Referer': self.BASE_URL + "/submission" ,
+            'Host': self.BASE_URL.replace("http://","").replace("https://","") ,
+            'Content-Type': "multipart/form-data; boundary=---------------------------2341433157197025002472170340",
+            'Content-Length':str(len(data))
+        }
+        res = self.session[self.now].post(url,data=data,headers=hder)
+        res.encoding = 'utf-8'
+        #print(res.text)
+        return re.search(r'update_judgement_status_details\((.+?)\)', res.text, re.M|re.I).group()[32:-1]
+    
+    def Monitor(self,rid,next,end):
+        print(rid)
+        url = self.BASE_URL + "/submission-status-details?get%5B%5D="+rid
+        res = None
+        sta = None
+        try:
+            res = self.session[self.now].get(url,headers=self.HEADERS)
+            res.encoding = 'utf-8'
+            #print(res.text)
+            res = json.loads(res.text.replace("\\n",""))
+            #<td colspan="233" style="vertical-align: middle"><div class="uoj-status-details-img-div"><img src="http://img.uoj.ac/utility/bear-flying.gif" alt="小熊像超人一样飞" class="img-rounded" /></div><div class="uoj-status-details-text-div">Compiling</div></td>
+            #sta = BeautifulSoup(res["html"],"lxml").find("div",attrs={"class":"uoj-status-details-text-div"}).string
+            res = res[0]
+            #print(res)
+            sta = re.search(r'<div class="uoj-status-details-text-div">(.+?)</div>', res["html"], re.M|re.I).group()[41:-6]
+            print(sta)
+        except:
+            res = {"judged":True}
+        
+        while res["judged"]==False:
+            flag = False
+            if (sta == "Judging"):
+                next(status=STATUS_JUDGING, progress=0)
+            else:
+                next(status=STATUS_COMPILING, progress=0)
+            time.sleep(1)
+            try:
+                res = self.session[self.now].get(url,headers=self.HEADERS)
+                res.encoding = 'utf-8'
+                res = json.loads(res.text.replace("\\n",""))
+                res = res[0]
+                sta = re.search(r'<div class="uoj-status-details-text-div">(.+?)</div>', res["html"], re.M|re.I).group()[41:-6]
+                print(sta)
+            except:
+                print(res)
+                res = {"judged":True}
+            
+            #sta = BeautifulSoup(res["html"],"lxml").find("div",attrs={"class":"uoj-status-details-text-div"}).string
+        print(sta)
+        url = self.BASE_URL + "/submission/"+rid
+        print(self.HEADERS)
+        
+        FLAG = True
+        cnt = 0
+        while FLAG and cnt < 10:
+            try:
+                res = self.session[self.now].get(url,headers=self.HEADERS)
+            except:
+                print("Failed in try {} ,will retry after 1 seconds.".format(cnt))
+                time.sleep(1)
+                cnt+=1
+            else:
+                print("Succeed.")
+                FLAG = False
+        res.encoding = 'utf-8'
+        soup = BeautifulSoup(res.text,"lxml")
+        
+        #with open("web.html","w") as f:
+        #    f.write(res.text)
+        #with open("web.html","r") as f:
+        #    soup = BeautifulSoup(f.read(),"lxml")
+        
+        next(status=STATUS_JUDGING, progress=0)
+        
+        #print(soup.find("table",attrs={"class":"table table-bordered table-text-center"}).tbody.find_all("td"))
+        fscore = soup.find("table",attrs={"class":"table table-bordered table-text-center"}).tbody.tr.find_all("td")[3].a.string
+        ftime = soup.find("table",attrs={"class":"table table-bordered table-text-center"}).tbody.tr.find_all("td")[4].string[0:-2]
+        fmemory = soup.find("table",attrs={"class":"table table-bordered table-text-center"}).tbody.tr.find_all("td")[5].string[0:-2]
+        
+        if fscore == "Compile Error":
+            next(compiler_text=str(soup.find_all("div",attrs={"class":"panel panel-info"})[1].find("pre")))
+            end(status=STATUS_COMPILE_ERROR,
+                 score=0,
+                 time_ms=0,
+                 memory_kb=0)
+            return
+        
+        watext = ""
+        cnt = 0
+        finalStatus = 0
+        #print(soup.find("div",attrs={"id":"details_details_accordion"}).contents)
+        
+        for soup2 in soup.find("div",attrs={"id":"details_details_accordion"}).contents:
+            
+            try:
+                tmp = soup2["class"]
+            except:
+                #print("Shit")
+                continue
+            
+            if ("text-right" in soup2["class"]):
+                #print(soup2["class"],"Fuck")
+                continue
+            else:
+                #print(cnt)
+                cnt += 1
+                #print(soup2)
+                soup1 = soup2.contents[0].div.contents
+                if self.SResult[soup1[2].string] == STATUS_WRONG_ANSWER:
+                    watext = watext + "---------------------------------\n" 
+                    watext = watext + soup1[0].h4.string 
+                    watext = watext + "\n Input : \n" + soup2.contents[1].div.contents[2].string
+                    watext = watext + "\n Output : \n" + soup2.contents[1].div.contents[5].string
+                    watext = watext + "\n Result : \n" + soup2.contents[1].div.contents[8].string
+                #print(soup1[1].string)
+                next(status=STATUS_JUDGING,
+                    case={
+                        'status': self.SResult[soup1[2].string],
+                        'score': int(soup1[1].string[7:]),
+                        'time_ms': int(soup1[3].string[6:-2]),
+                        'memory_kb': int(soup1[4].string[8:-2]),
+                        'judge_text': soup1[2].string+"["+soup1[1].string[7:]+"]"},
+                    progress=99)
+                finalStatus = max(finalStatus,self.SResult[soup1[2].string])
+        if watext != "":
+            watext = watext + "\n---------------------------------\n"
+            watext = watext + "This submission is posted to " + self.BASE_OJ + "(UOJ) by " + self.username[self.now]
+        else:
+            watext = "This submission is posted to " + self.BASE_OJ + "(UOJ) by " + self.username[self.now]
+        #print(1)
+        end(status=finalStatus,
+                 score=int(fscore),
+                 time_ms=int(ftime),
+                 memory_kb=int(fmemory),
+                 judge_text=watext)
+
+class DBzojJudge(UOJJudge):
+    BASE_OJ = "DarkBZOJ"
+    BASE_URL = "https://darkbzoj.tk"
 
 class VJudge:
     SLanguage = {}

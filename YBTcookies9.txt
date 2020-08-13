@@ -1,2 +1,0 @@
-#LWP-Cookies-2.0
-Set-Cookie3: username=SiKang19; path="/"; domain="ybt.ssoier.cn"; expires="2019-11-01 13:04:18Z"; version=0
